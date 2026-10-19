@@ -1,0 +1,46 @@
+id,group,text,expected_type,expected_urgent
+E001,plain,A water pipe has burst on Gandhi Street and clean water has been flowing onto the road since morning.,water_leakage,no
+E002,plain,The main water pipeline near the bus depot is leaking badly and a lot of water is being wasted.,water_leakage,no
+E003,natural,Our house service connection is dripping near the wall and the floor stays damp all day.,water_leakage,no
+E004,plain,"The tap water in our house is brown and smells bad, and my children have stomach pain.",water_pollution,yes
+E005,plain,Drinking water in our lane looks muddy after the pipe repair.,water_pollution,no
+E006,natural,There is a foul smell in the supply water and I think sewage is mixing with it.,water_pollution,yes
+E007,plain,We have not received any water in our street for four days.,no_water_supply,no
+E008,natural,The supply timing changed and now only a trickle comes from the tap.,no_water_supply,no
+E009,plain,There is no drinking water in our apartment since Monday and the sump is empty.,no_water_supply,no
+E010,plain,My water meter has stopped working and shows the same reading for months.,defective_meter,no
+E011,plain,The glass of our water meter is broken and nobody can read it.,defective_meter,no
+E012,natural,The meter at my house runs very fast even when all taps are closed.,defective_meter,no
+E013,plain,The hand pump in our street is broken and the handle is stuck.,handpump_repair,no
+E014,plain,"The India Mark II pump near the school needs repair, no water comes out.",handpump_repair,no
+E015,plain,Sewage is overflowing on our main road and the manhole cover is open.,sewer_main_blockage,yes
+E016,plain,The underground sewer line on our street is choked and dirty water is spilling onto the road.,sewer_main_blockage,no
+E017,natural,The sewer in our whole lane has been blocked for ten days and nobody has come.,sewer_main_blockage,no
+E018,plain,The pipe from our toilet to the street sewer is blocked and water is coming back into the bathroom.,house_sewer_blockage,no
+E019,natural,Our house drainage connection is clogged and the kitchen sink keeps overflowing.,house_sewer_blockage,no
+E020,plain,The sewer pipe under the road has cracked and dirty water is leaking out.,damaged_sewer_line,no
+E021,natural,A broken sewer line is leaking under the footpath next to our shop.,damaged_sewer_line,no
+E022,natural,The road above the sewer line has collapsed into a hole and children walk past it.,damaged_sewer_line,yes
+E023,plain,I paid my water tax last month but the portal still shows it as unpaid.,tax_charges,no
+E024,plain,The sewerage charges on my bill are much higher than my neighbours' bills.,tax_charges,no
+E025,natural,I was charged a late payment penalty even though I paid on time.,tax_charges,no
+E026,plain,"Please send a water tanker to our street, there has been no supply for a week.",tanker_supply,no
+E027,natural,Lorry water has not come to our colony for three days.,tanker_supply,no
+E028,plain,I applied for a new water connection two months ago and nothing has happened.,new_connection_delay,no
+E029,plain,The sewer connection application for our new house has been pending since March.,new_connection_delay,no
+E030,plain,There is no piped water in our settlement and we need free street water.,street_water_no_piped,no
+E031,natural,Our hamlet has no pipeline and nobody supplies water to us.,street_water_no_piped,no
+E032,plain,"Our septic tank is full and needs to be emptied, please send the vehicle.",septic_tank_clearance,no
+E033,plain,We need desludging of the septic tank in our compound.,septic_tank_clearance,no
+E034,plain,Workers were sent into the manhole without any safety gear or mask.,unsafe_cleaning,yes
+E035,natural,A man went down inside the septic tank with bare hands to clean it.,unsafe_cleaning,yes
+E036,plain,I want to complain about the rude behaviour of the staff at the depot office.,general_grievance,no
+E037,natural,Nobody picks up the helpline number and I want to give a suggestion about the service.,general_grievance,no
+E038,tamil,எங்கள் தெருவில் மூன்று நாட்களாக குடிநீர் வரவில்லை,no_water_supply,no
+E039,tamil,கழிவுநீர் குழாய் அடைத்துக்கொண்டு சாலையில் பெருக்கெடுக்கிறது,sewer_main_blockage,no
+E040,tamil,குழாயில் தண்ணீர் கசிந்து சாலையில் ஓடுகிறது,water_leakage,no
+E041,tamil,என் தண்ணீர் வரி ரசீதில் அதிக தொகை போட்டிருக்கிறார்கள்,tax_charges,no
+E042,hindi,हमारी गली में पानी की पाइपलाइन फट गई है और सड़क पर पानी बह रहा है,water_leakage,no
+E043,hindi,मेरा पानी का बिल बहुत ज़्यादा आया है,tax_charges,no
+E044,hindi,नल का पानी गंदा और बदबूदार है और कई लोग बीमार हो गए हैं,water_pollution,yes
+E045,hindi,हमारे मोहल्ले में पिछले चार दिन से पानी नहीं आया,no_water_supply,no

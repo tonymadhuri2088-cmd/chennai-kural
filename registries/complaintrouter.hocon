@@ -1,0 +1,133 @@
+# CMWSSB complaint router - agent network.
+# Schema reference: https://github.com/cognizant-ai-lab/neuro-san/blob/main/docs/agent_hocon_reference.md
+#
+# Scope: a demo. Timelines come from the CMWSSB Citizen's Charter 2021 PDF copy (see data/charter.json
+# for page references). Every reply is a DRAFT that is never sent.
+
+{
+    "metadata": {
+        "description": "Complaint router for Chennai water and sewer complaints. Classifies a complaint, names the owning unit, applies the charter timeline and escalation schedule, and drafts a reply for review. Unofficial; drafts are never sent.",
+        "tags": ["civic", "hackathon", "unofficial"],
+        "sample_queries": [
+            "Water is leaking from the pipe near my house for three days, please fix it.",
+            "Sewer main is blocked, manhole overflowing on our street. Complaint was made 10 days ago.",
+        ]
+    },
+    "llm_config": {
+        # Local Ollama model. Run `ollama pull llama3.1` first and keep Ollama running.
+        # To use Gemini instead, set model_name to your Gemini model, remove base_url, and set GOOGLE_API_KEY in .env.
+        "model_name": "llama3.1",
+        "base_url": "http://localhost:11434"
+    },
+    # Local CPU models are slow. The default is 2 minutes, so allow 10.
+    "max_execution_seconds": 600,
+    "tools": [
+        {
+            "name": "complaint_coordinator",
+            "function": {
+                "description": "Route a citizen water or sewer complaint to the owning unit, with the charter timeline and escalation schedule, and draft a reply for review. Give the complaint text, and optionally how many days have passed since it was registered."
+            },
+            "instructions": """
+IMPORTANT: ALWAYS CALL THE TOOLS IN THIS ORDER: intake_agent, then charter_agent, then router_agent, then escalation_agent (only if days elapsed are given), then reply_agent.
+
+IMPORTANT: NEVER INVENT TIMELINES OR OFFICER NAMES. Use only the values the tools return. If the tools return a note saying a subtype was assumed, a timeline is missing, or the type is unclassified, say so in the answer.
+
+IMPORTANT: Pass the complaint type and subtype from intake_agent to charter_agent. Pass the complaint type to router_agent. Pass the escalation_key from router_agent to escalation_agent (with days elapsed only if the user gave them) and to reply_agent. Pass the fix_note from charter_agent to reply_agent.
+
+IMPORTANT: NEVER INVENT A NUMBER OF DAYS ELAPSED. Phrases such as "for three days" describe how long the problem has lasted, not days since registration, unless the user says the complaint was registered that many days ago. If days since registration are not given, do not pass a number.
+
+IMPORTANT: YOUR FINAL ANSWER MUST BE THE TEXT RETURNED BY reply_agent, COPIED EXACTLY, WORD FOR WORD. Add nothing before or after it. Do not summarise it, rewrite it, or turn the escalation days into a timeline. The reply already contains the DRAFT banner, the charter source, and the open items for the reviewer.
+
+IMPORTANT: NEVER SAY THE COMPLAINT HAS BEEN SENT, REGISTERED, OR RESOLVED. NEVER SAY AN OFFICIAL CMWSSB REPLY WAS ISSUED.
+""",
+            "tools": [
+                "intake_agent",
+                "charter_agent",
+                "router_agent",
+                "escalation_agent",
+                "reply_agent"
+            ]
+        },
+        {
+            "name": "intake_agent",
+            "function": {
+                "description": "Classify a citizen complaint into a charter complaint type and subtype, and report urgency and any notes for a human.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "complaint_text": {"type": "string", "description": "The citizen's complaint text."}
+                    },
+                    "required": ["complaint_text"]
+                }
+            },
+            "class": "intake.ComplaintIntake"
+        },
+        {
+            "name": "charter_agent",
+            "function": {
+                "description": "Return the charter maintenance timeline for a complaint type and subtype.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "complaint_type": {"type": "string", "description": "Complaint type from intake_agent."},
+                        "subtype": {"type": "string", "description": "Subtype from intake_agent, or leave empty."}
+                    },
+                    "required": ["complaint_type"]
+                }
+            },
+            "class": "charter_lookup.CharterLookup"
+        },
+        {
+            "name": "router_agent",
+            "function": {
+                "description": "Name the owning unit for a complaint type, and its escalation key.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "complaint_type": {"type": "string", "description": "Complaint type from intake_agent."}
+                    },
+                    "required": ["complaint_type"]
+                }
+            },
+            "class": "router.ComplaintRouter"
+        },
+        {
+            "name": "escalation_agent",
+            "function": {
+                "description": "Report the charter's escalation days for each officer level for a complaint type. Does not name a current level. Pass days elapsed only when the user gave days since registration.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "escalation_key": {"type": "string", "description": "escalation_key from router_agent. Empty if none."},
+                        "days_elapsed": {"type": "number", "description": "Days since the complaint was registered, only if the user gave them."}
+                    },
+                    "required": ["escalation_key"]
+                }
+            },
+            "class": "escalation.EscalationChecker"
+        },
+        {
+            "name": "reply_agent",
+            "function": {
+                "description": "Draft the complete reply text: the DRAFT banner, the charter source, the repair timeline, and the escalation days as printed. The reply is never sent. Return its text unchanged.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "reference": {"type": "string"},
+                        "label": {"type": "string", "description": "Complaint label from charter_agent."},
+                        "owner": {"type": "string", "description": "Owner from router_agent."},
+                        "fix_days": {"type": "integer", "description": "fix_days from charter_agent, or empty."},
+                        "fix_hours": {"type": "integer", "description": "fix_hours from charter_agent, or empty."},
+                        "fix_note": {"type": "string", "description": "fix_note from charter_agent, or empty. Shows a charter value to check against the official site."},
+                        "days_elapsed": {"type": "number", "description": "Days since registration, only if the user gave them."},
+                        "urgent": {"type": "boolean"},
+                        "escalation_key": {"type": "string", "description": "escalation_key from router_agent. Empty if none."},
+                        "review_notes": {"type": "string", "description": "JSON list of notes from intake_agent, for the reviewer."}
+                    },
+                    "required": ["label", "owner"]
+                }
+            },
+            "class": "reply.ReplyDrafter"
+        }
+    ]
+}

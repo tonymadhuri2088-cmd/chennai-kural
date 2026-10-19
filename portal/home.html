@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Home - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<!-- Home page for a logged-in citizen: Register Complaint, Track Complaint, services, numbers and steps. -->
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/home">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/home" class="active" aria-current="page">Home</a>
+      <a href="/register">Register Complaint</a>
+      <a href="/track">Track Complaint</a>
+      <a href="#services">Services</a>
+      <a href="#how">How It Works</a>
+    </nav>
+    <div class="top-right">
+      <div class="account" id="accountArea" hidden>
+        <button type="button" class="avatar" id="accountButton" aria-haspopup="true" aria-expanded="false" aria-label="Your account"></button>
+        <div class="account-panel" id="accountPanel" hidden>
+          <h3>Your details</h3>
+          <dl id="accountDetails"></dl>
+          <button type="button" class="btn outline block" id="logoutButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-out"/></svg>Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <svg class="hero-drop" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg>
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <p class="greeting" id="greeting"></p>
+    <h1>Clean Water, Clear Drains <br class="wide-only">for Every Street in <span class="sky">Chennai</span></h1>
+    <p class="lead">Report water and sewer problems, follow their progress, and confirm when they are fixed. Your voice matters.</p>
+    <div class="hero-actions">
+      <a class="btn light" href="/register" id="registerButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg>Register Complaint<svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg></a>
+      <a class="btn on-blue" href="/track" id="trackButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>Track Complaint<svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg></a>
+    </div>
+    <div class="chips">
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg>Clean water</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#pipe"/></svg>Clear drains</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#zap"/></svg>Quick response</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#megaphone"/></svg>Your voice matters</span>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <section class="section" id="services">
+    <div class="section-head">
+      <div>
+        <h2>Common Services</h2>
+        <p>Report problems with water and sewer services.</p>
+      </div>
+      <a href="/register">Register a complaint <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg></a>
+    </div>
+    <div class="services">
+      <a class="service" href="/register?service=water">
+        <span class="bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+        <h3>Water Supply</h3><p>No water, low pressure or an irregular supply.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+      <a class="service" href="/register?service=leak">
+        <span class="bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#tool"/></svg></span>
+        <h3>Leaks and Pipe Bursts</h3><p>A leaking or burst water pipe on your street.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+      <a class="service" href="/register?service=sewer">
+        <span class="bubble tone-purple"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#pipe"/></svg></span>
+        <h3>Sewer Blockage</h3><p>A blocked, overflowing or damaged sewer line.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+      <a class="service" href="/register?service=quality">
+        <span class="bubble tone-teal"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#alert"/></svg></span>
+        <h3>Water Quality</h3><p>Dirty, smelly or contaminated water.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+      <a class="service" href="/register?service=billing">
+        <span class="bubble tone-yellow"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#receipt"/></svg></span>
+        <h3>Billing and Charges</h3><p>A wrong bill, tax or unfair charge.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+      <a class="service" href="/register?service=connection">
+        <span class="bubble tone-green"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg></span>
+        <h3>New Connections</h3><p>A delay in a new water or sewer connection.</p>
+        <svg class="icon go" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Your complaints in numbers">
+    <div class="numbers">
+      <div class="numbers-title">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#chart"/></svg>
+        <div><strong>Your Complaints in Numbers</strong><span>From your account. Updates on its own.</span></div>
+      </div>
+      <div class="stat"><span class="bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-text"/></svg></span><div><strong id="nTotal">0</strong><span>Registered</span></div></div>
+      <div class="stat"><span class="bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#clock"/></svg></span><div><strong id="nOpen">0</strong><span>In progress</span></div></div>
+      <div class="stat"><span class="bubble tone-yellow"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#alert"/></svg></span><div><strong id="nWaiting">0</strong><span>Waiting for you</span></div></div>
+      <div class="stat"><span class="bubble tone-green"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#check-circle"/></svg></span><div><strong id="nClosed">0</strong><span>Resolved</span></div></div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div>
+      <h2>How It Works</h2>
+      <p class="sub">From complaint to resolution, in four simple steps.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg></span><div><strong>1. Register</strong><span>Describe the problem. Your name, mobile number and ward are filled in.</span></div></div>
+      <div class="step"><span class="bubble tone-purple"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#route"/></svg></span><div><strong>2. Auto-route</strong><span>It goes to the officer for your field and ward.</span></div></div>
+      <div class="step"><span class="bubble tone-green"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#search"/></svg></span><div><strong>3. Track</strong><span>See which office has it and its time limit.</span></div></div>
+      <div class="step"><span class="bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#check-circle"/></svg></span><div><strong>4. Get Resolved</strong><span>Confirm the fix, or send it up if it is not fixed.</span></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="mine">
+    <div class="section-head">
+      <div>
+        <h2>Your Complaints</h2>
+        <p>When an officer marks a complaint resolved, confirm here whether the problem is fixed.</p>
+      </div>
+      <span class="live" id="liveNote">Live</span>
+    </div>
+    <p class="muted" id="listEmpty" hidden>You have not registered a complaint yet. <a href="/register">Register a complaint</a></p>
+    <p id="listError" class="error" hidden></p>
+    <ul class="my-list" id="myList"></ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say, el, when } = Portal;
+  let profile = null;
+  let lastSignature = "";
+  const codes = {}; // complaint ID -> code shown after "Yes, it is fixed" (demo: no SMS)
+
+  async function confirm(item, fixed, comment) {
+    say("listError", "");
+    try {
+      const view = await post("/api/confirm", { id: item.id, contact: profile.mobile, fixed: fixed, comment: comment });
+      if (fixed && view.demo_code) codes[item.id] = { code: view.demo_code, minutes: view.demo_code_minutes };
+      await loadComplaints(true);
+    } catch (err) {
+      say("listError", err.message);
+    }
+  }
+
+  async function closeWithCode(item, code) {
+    say("listError", "");
+    try {
+      await post("/api/confirm-code", { id: item.id, contact: profile.mobile, code: code });
+      delete codes[item.id];
+      await loadComplaints(true);
+    } catch (err) {
+      say("listError", err.message);
+    }
+  }
+
+  function confirmBox(item, awaitingCode) {
+    const box = el("div", { className: "confirm-box" });
+    if (awaitingCode) {
+      const shown = codes[item.id];
+      box.append(el("p", null, shown
+        ? `Enter this code to close the complaint: ${shown.code}. It is shown here instead of an SMS and lasts ${shown.minutes} minutes.`
+        : "Enter the code sent to your mobile by SMS to close the complaint. If you do not have it, say the problem is fixed again to get a new one."));
+      const input = el("input", { className: "input", type: "text", inputmode: "numeric", maxlength: "6", placeholder: "6-digit code", "aria-label": `Code for ${item.id}` });
+      const close = el("button", { type: "button", className: "btn small" }, "Close the complaint");
+      close.addEventListener("click", () => closeWithCode(item, input.value));
+      const again = el("button", { type: "button", className: "btn small outline" }, "Show a new code");
+      again.addEventListener("click", () => confirm(item, true, ""));
+      box.append(el("div", { className: "actions" }, input, close, shown ? null : again));
+      return box;
+    }
+    box.append(el("p", null, "An officer has marked this complaint resolved. Is the problem really fixed?"));
+    const comment = el("input", { className: "input", type: "text", maxlength: "1000", placeholder: "Comment (optional)", "aria-label": `Comment for ${item.id}` });
+    const yes = el("button", { type: "button", className: "btn small" }, "Yes, it is fixed");
+    const no = el("button", { type: "button", className: "btn small danger" }, "No, still not fixed");
+    yes.addEventListener("click", () => confirm(item, true, comment.value));
+    no.addEventListener("click", () => confirm(item, false, comment.value));
+    box.append(el("div", { className: "actions" }, comment, yes, no));
+    return box;
+  }
+
+  function render(items, details) {
+    $("nTotal").textContent = items.length;
+    $("nOpen").textContent = items.filter((item) => item.status === "open").length;
+    $("nWaiting").textContent = items.filter((item) => item.status === "awaiting_confirmation").length;
+    $("nClosed").textContent = items.filter((item) => item.status === "closed").length;
+    $("listEmpty").hidden = items.length > 0;
+
+    const list = $("myList");
+    list.replaceChildren();
+    for (const item of items) {
+      const top = el("div", { className: "row-top" },
+        el("span", { className: "cid" }, item.id),
+        item.overdue ? el("span", { className: "pill overdue" }, "Time limit passed") : null,
+        el("span", null, `${item.complaint_label} (${item.field})`),
+        el("a", { className: "row-link", href: `/track?id=${encodeURIComponent(item.id)}` }, "Track \u2192"),
+        Portal.citizenPill(item));
+      const deadline = item.status === "open" ? `Time limit: ${when(item.deadline)}` : "";
+      const meta = el("div", { className: "meta" },
+        [item.problem_address ? `At: ${item.problem_address}${item.landmark ? ` (${item.landmark})` : ""}` : "",
+         item.worker ? `Worker: ${item.worker.name} (${item.worker.department})` : `With: ${item.current_office}`,
+         `${item.zone}, ${item.ward}`, deadline].filter(Boolean).join("  ·  "));
+      const row = el("li", null, top, meta);
+      const detail = details[item.id];
+      if (detail && detail.completion_code) {
+        row.append(el("div", { className: "code-for-worker" }, "Code for the worker:", el("strong", null, detail.completion_code),
+          el("div", null, "The worker has finished and asked for this code. Give it only if the problem is fixed.")));
+      }
+      if (item.status === "awaiting_confirmation") {
+        row.append(confirmBox(item, Boolean(details[item.id] && details[item.id].awaiting_code)));
+      }
+      list.appendChild(row);
+    }
+  }
+
+  // Reload the list. Skip the redraw if nothing changed, or while the citizen is typing in it.
+  async function loadComplaints(force) {
+    const result = await get("/api/citizen/complaints");
+    if (!result.ok) {
+      if (result.status === 401) { window.location.replace("/"); return; }
+      $("liveNote").classList.add("paused");
+      $("liveNote").textContent = "Cannot reach the server";
+      return;
+    }
+    $("liveNote").classList.remove("paused");
+    $("liveNote").textContent = "Live";
+    const items = result.data.complaints || [];
+    const details = {};
+    for (const item of items.filter((entry) => entry.status === "awaiting_confirmation" || entry.work_status === "allotted")) {
+      try {
+        details[item.id] = await post("/api/track", { id: item.id, contact: profile.mobile });
+      } catch (err) {
+        /* shown without the code step */
+      }
+    }
+    const signature = JSON.stringify([items, details, codes]);
+    const typing = $("myList").contains(document.activeElement) && document.activeElement.tagName === "INPUT";
+    if (!force && (signature === lastSignature || typing)) return;
+    lastSignature = signature;
+    render(items, details);
+  }
+
+  (async () => {
+    profile = await Portal.requireCitizen();
+    Portal.setupAccount(profile.name, Portal.citizenAccountRows(profile));
+    const first = String(profile.name || "").trim().split(/\s+/)[0];
+    $("greeting").textContent = first ? `Welcome, ${first}` : "Welcome";
+    await loadComplaints(true);
+    setInterval(() => { if (!document.hidden) loadComplaints(false); }, 5000);
+  })();
+</script>
+</body>
+</html>

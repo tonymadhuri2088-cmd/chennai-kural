@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<!-- First screen: a citizen logs in with a code to their mobile number; an officer logs in with a username and password. -->
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <div class="top-right">
+      <label class="lang">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#globe"/></svg>
+        <select id="lang" aria-label="Language">
+          <option value="en">English</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+      </label>
+    </div>
+  </div>
+</header>
+
+<section class="hero landing-hero">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container landing-grid">
+    <div class="hero-text">
+      <h1><span id="h1a">Clean Water, Clear Drains</span> <br class="wide-only"><span id="h1b">for Every Street in <span class="sky">Chennai</span></span></h1>
+      <p class="lead" id="lead">Report water and sewer problems, follow their progress, and confirm when they are fixed. Sign up once, then log in with your mobile number.</p>
+      <div class="chips">
+        <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg><span data-chip="0">Clean water</span></span>
+        <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#pipe"/></svg><span data-chip="1">Clear drains</span></span>
+        <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#zap"/></svg><span data-chip="2">Quick response</span></span>
+        <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#megaphone"/></svg><span data-chip="3">Your voice matters</span></span>
+      </div>
+    </div>
+
+    <div class="login-card" id="loginCard">
+      <div class="seg three" role="tablist" aria-label="Choose how to log in">
+        <button type="button" role="tab" id="tabCitizen" data-tab="citizen" aria-selected="true" aria-controls="citizenPanel">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>User Login
+        </button>
+        <button type="button" role="tab" id="tabWorker" data-tab="worker" aria-selected="false" aria-controls="workerPanel">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#worker"/></svg>Worker Login
+        </button>
+        <button type="button" role="tab" id="tabOfficer" data-tab="officer" aria-selected="false" aria-controls="officerPanel">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#briefcase"/></svg>Officer Login
+        </button>
+      </div>
+
+      <div id="notice" class="notice ok" role="status" hidden></div>
+
+      <div id="citizenPanel" role="tabpanel" aria-labelledby="tabCitizen">
+        <form id="loginForm">
+          <div class="field">
+            <label for="contact">Mobile number <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#phone"/></svg>
+              <input class="input" id="contact" type="tel" inputmode="numeric" maxlength="16" autocomplete="tel" placeholder="Enter your 10-digit mobile number" required>
+            </div>
+          </div>
+          <p class="muted-note">You get a 6-digit code by SMS on this number. If SMS is not set up on the server, the code appears here instead.</p>
+          <button class="btn block" type="submit" id="loginSubmit">Send me a code <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg></button>
+          <p id="loginError" class="error" role="alert" hidden></p>
+          <p id="newUserLink" class="hint" hidden><a href="/signup">Sign up as a citizen</a></p>
+        </form>
+
+        <form id="verifyForm" hidden>
+          <div class="code-box">
+            <p id="codeFor"></p>
+            <strong id="loginCode"></strong>
+            <p id="loginCodeNote"></p>
+          </div>
+          <div class="field">
+            <label for="loginCodeInput">Code <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#shield"/></svg>
+              <input class="input" id="loginCodeInput" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Enter the 6-digit code" required>
+            </div>
+          </div>
+          <button class="btn block" type="submit" id="verifySubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-in"/></svg>Log in</button>
+          <p id="verifyError" class="error" role="alert" hidden></p>
+          <p class="hint"><button type="button" class="linkish" id="changeNumber">Use a different mobile number</button></p>
+        </form>
+
+        <p class="signup-line">Don't have an account? <a href="/signup">Click here to sign up</a></p>
+      </div>
+
+      <div id="workerPanel" role="tabpanel" aria-labelledby="tabWorker" hidden>
+        <form id="workerLoginForm">
+          <div class="field">
+            <label for="workerContact">Mobile number <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#phone"/></svg>
+              <input class="input" id="workerContact" type="tel" inputmode="numeric" maxlength="16" autocomplete="tel" placeholder="Enter your 10-digit mobile number" required>
+            </div>
+          </div>
+          <p class="muted-note">Workers get a 6-digit code by SMS on this number. If SMS is not set up on the server, the code appears here instead.</p>
+          <button class="btn block" type="submit" id="workerLoginSubmit">Send me a code <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#arrow-right"/></svg></button>
+          <p id="workerLoginError" class="error" role="alert" hidden></p>
+          <p id="workerNewUserLink" class="hint" hidden><a href="/worker/signup">Sign up as a worker</a></p>
+        </form>
+        <form id="workerVerifyForm" hidden>
+          <div class="code-box">
+            <p id="workerCodeFor"></p>
+            <strong id="workerCode"></strong>
+            <p id="workerCodeNote"></p>
+          </div>
+          <div class="field">
+            <label for="workerCodeInput">Code <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#shield"/></svg>
+              <input class="input" id="workerCodeInput" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Enter the 6-digit code" required>
+            </div>
+          </div>
+          <button class="btn block" type="submit" id="workerVerifySubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-in"/></svg>Log in</button>
+          <p id="workerVerifyError" class="error" role="alert" hidden></p>
+          <p class="hint"><button type="button" class="linkish" id="workerChangeNumber">Use a different mobile number</button></p>
+        </form>
+        <p class="signup-line">New worker? <a href="/worker/signup">Click here to sign up</a></p>
+      </div>
+
+      <div id="officerPanel" role="tabpanel" aria-labelledby="tabOfficer" hidden>
+        <form id="officerLoginForm" autocomplete="off">
+          <div class="field">
+            <label for="officerUser">Username <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>
+              <input class="input" id="officerUser" type="text" maxlength="40" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Your officer username" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="officerPass">Password <span class="req">*</span></label>
+            <div class="with-icon">
+              <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#lock"/></svg>
+              <input class="input" id="officerPass" type="password" maxlength="200" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Password" required>
+            </div>
+          </div>
+          <p class="muted-note">Officer logins end at midnight every day (India time).</p>
+          <button class="btn block" type="submit" id="officerSubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-in"/></svg>Log in</button>
+          <p id="officerError" class="error" role="alert" hidden></p>
+        </form>
+        <p class="signup-line">New officer? <a href="/officer/signup">Click here to sign up</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="below">
+  <div class="container landing-grid">
+    <div class="info-card" id="infoCard" aria-roledescription="carousel" aria-label="How the portal works">
+      <div class="info-art"><svg class="icon" aria-hidden="true"><use id="slideIcon" href="/assets/icons.svg#file-edit"/></svg></div>
+      <div class="slide" aria-live="polite">
+        <p class="kicker" id="slideKicker"></p>
+        <h2 id="slideTitle"></h2>
+        <p id="slideText"></p>
+      </div>
+      <div class="info-round" aria-hidden="true"><svg class="icon"><use href="/assets/icons.svg#megaphone"/></svg></div>
+      <div class="carousel-nav">
+        <div class="arrows">
+          <button type="button" id="prevSlide" aria-label="Previous"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#chevron-left"/></svg></button>
+          <button type="button" id="nextSlide" aria-label="Next"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#chevron-right"/></svg></button>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+    <div aria-hidden="true"></div>
+  </div>
+  <div class="skyband" aria-hidden="true">
+    <svg><use href="/assets/icons.svg#skyline"/></svg>
+    <svg><use href="/assets/icons.svg#skyline"/></svg>
+    <svg><use href="/assets/icons.svg#skyline"/></svg>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say } = Portal;
+
+  // A citizen who is still logged in goes straight to the home page. An officer goes to the dashboard.
+  (async () => {
+    const me = await get("/api/me");
+    if (me.ok && Portal.HOME_FOR[me.data.role]) window.location.replace(Portal.HOME_FOR[me.data.role]);
+  })();
+
+  // User Login and Officer Login tabs
+  function showTab(name) {
+    const tab = ["citizen", "worker", "officer"].includes(name) ? name : "citizen";
+    $("citizenPanel").hidden = tab !== "citizen";
+    $("workerPanel").hidden = tab !== "worker";
+    $("officerPanel").hidden = tab !== "officer";
+    $("tabCitizen").setAttribute("aria-selected", String(tab === "citizen"));
+    $("tabWorker").setAttribute("aria-selected", String(tab === "worker"));
+    $("tabOfficer").setAttribute("aria-selected", String(tab === "officer"));
+  }
+  document.querySelectorAll("[data-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      say("notice", "");
+      showTab(button.dataset.tab);
+    });
+  });
+
+  // Messages after a sign-up, or when an officer's login has ended
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("signed_up") === "1") {
+    say("notice", "Sign-up saved. Log in with your mobile number.", "ok");
+  }
+  if (params.get("officer_signed_up") === "1") {
+    showTab("officer");
+    say("notice", "Sign-up saved. Log in with your username and password.", "ok");
+  }
+  if (params.get("worker_signed_up") === "1") {
+    showTab("worker");
+    say("notice", "Sign-up saved. Log in with your mobile number on the Worker Login tab.", "ok");
+  }
+  if (params.get("tab") === "officer" || params.get("tab") === "worker") showTab(params.get("tab"));
+  if (params.get("reason") === "signin") {
+    showTab("officer");
+    say("officerError", "Log in as an officer to continue. Officer logins end at midnight every day (India time).");
+  }
+  if (window.location.search) history.replaceState(null, "", "/");
+
+  // Citizen login: the mobile number gets a code, then the code logs the citizen in
+  $("loginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("loginError", "");
+    $("newUserLink").hidden = true;
+    $("loginSubmit").disabled = true;
+    try {
+      const sent = await post("/api/citizen/login", { contact: $("contact").value });
+      // Sent by SMS: no code on screen. Otherwise (no SMS set up) the code is shown here.
+      $("codeFor").textContent = sent.code ? `Code for ${$("contact").value.trim()}` : "Check your phone";
+      $("loginCode").textContent = sent.code || "SMS sent";
+      $("loginCodeNote").textContent = `${sent.note} It lasts ${sent.minutes} minutes.`;
+      $("loginForm").hidden = true;
+      $("verifyForm").hidden = false;
+      $("loginCodeInput").value = "";
+      $("loginCodeInput").focus();
+    } catch (err) {
+      say("loginError", err.message);
+      if (err.status === 404) $("newUserLink").hidden = false;
+    } finally {
+      $("loginSubmit").disabled = false;
+    }
+  });
+
+  $("verifyForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("verifyError", "");
+    $("verifySubmit").disabled = true;
+    try {
+      await post("/api/citizen/verify", { contact: $("contact").value, code: $("loginCodeInput").value });
+      window.location.assign("/home");
+    } catch (err) {
+      say("verifyError", err.message);
+      $("verifySubmit").disabled = false;
+    }
+  });
+
+  $("changeNumber").addEventListener("click", () => {
+    $("verifyForm").hidden = true;
+    $("loginForm").hidden = false;
+    say("verifyError", "");
+    $("contact").focus();
+  });
+
+  // Worker login: the same as a citizen's, with its own code, then the worker board opens
+  $("workerLoginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("workerLoginError", "");
+    $("workerNewUserLink").hidden = true;
+    $("workerLoginSubmit").disabled = true;
+    try {
+      const sent = await post("/api/worker/login", { contact: $("workerContact").value });
+      $("workerCodeFor").textContent = sent.code ? `Code for ${$("workerContact").value.trim()}` : "Check your phone";
+      $("workerCode").textContent = sent.code || "SMS sent";
+      $("workerCodeNote").textContent = `${sent.note} It lasts ${sent.minutes} minutes.`;
+      $("workerLoginForm").hidden = true;
+      $("workerVerifyForm").hidden = false;
+      $("workerCodeInput").value = "";
+      $("workerCodeInput").focus();
+    } catch (err) {
+      say("workerLoginError", err.message);
+      if (err.status === 404) $("workerNewUserLink").hidden = false;
+    } finally {
+      $("workerLoginSubmit").disabled = false;
+    }
+  });
+
+  $("workerVerifyForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("workerVerifyError", "");
+    $("workerVerifySubmit").disabled = true;
+    try {
+      await post("/api/worker/verify", { contact: $("workerContact").value, code: $("workerCodeInput").value });
+      window.location.assign("/worker");
+    } catch (err) {
+      say("workerVerifyError", err.message);
+      $("workerVerifySubmit").disabled = false;
+    }
+  });
+
+  $("workerChangeNumber").addEventListener("click", () => {
+    $("workerVerifyForm").hidden = true;
+    $("workerLoginForm").hidden = false;
+    say("workerVerifyError", "");
+    $("workerContact").focus();
+  });
+
+  // Officer login: on success the dashboard opens
+  // Never fill the officer login from the browser's saved details: clear it whenever the page is shown.
+  function clearOfficerLogin() { $("officerUser").value = ""; $("officerPass").value = ""; }
+  window.addEventListener("pageshow", clearOfficerLogin);
+  clearOfficerLogin();
+
+  $("officerLoginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("officerError", "");
+    $("officerSubmit").disabled = true;
+    try {
+      await post("/api/officer/login", { username: $("officerUser").value, password: $("officerPass").value });
+      window.location.assign("/officer");
+    } catch (err) {
+      say("officerError", err.message);
+      $("officerPass").value = "";
+      $("officerSubmit").disabled = false;
+    }
+  });
+
+  // Banner and "how it works" text in English and Tamil. The Tamil should be checked by a native speaker.
+  const TEXT = {
+    en: {
+      h1a: "Clean Water, Clear Drains",
+      h1b: ["for Every Street in ", "Chennai", ""],
+      lead: "Report water and sewer problems, follow their progress, and confirm when they are fixed. Sign up once, then log in with your mobile number.",
+      chips: ["Clean water", "Clear drains", "Quick response", "Your voice matters"],
+      slides: [
+        { icon: "file-edit", kicker: "How it works", title: "Report a problem in minutes", text: "Describe the problem in your own words. The portal sorts it into water supply, sewerage, billing, new connections or general, and sends it to the officer for your ward." },
+        { icon: "route", kicker: "Stay informed", title: "Follow every step", text: "See which office has your complaint and its time limit. If the time passes without a fix, the complaint moves up to the next officer." },
+        { icon: "check-circle", kicker: "You decide", title: "Confirm the fix yourself", text: "When the officer marks it resolved, you confirm. If it is still not fixed, it goes to the ward office and then to the District Head Office." },
+      ],
+    },
+    ta: {
+      h1a: "சுத்தமான குடிநீர், தெளிவான வடிகால்",
+      h1b: ["", "சென்னையின்", " ஒவ்வொரு தெருவுக்கும்"],
+      lead: "குடிநீர் மற்றும் கழிவுநீர் பிரச்சனைகளைப் புகார் செய்யுங்கள், முன்னேற்றத்தைப் பின்தொடருங்கள், சரியானதும் உறுதிப்படுத்துங்கள். ஒருமுறை பதிவு செய்து, உங்கள் மொபைல் எண்ணுடன் உள்நுழையுங்கள்.",
+      chips: ["சுத்தமான குடிநீர்", "தெளிவான வடிகால்", "விரைவான நடவடிக்கை", "உங்கள் குரல் முக்கியம்"],
+      slides: [
+        { icon: "file-edit", kicker: "எப்படி வேலை செய்கிறது", title: "சில நிமிடங்களில் புகார் செய்யுங்கள்", text: "புகாரைப் பதிவு செய்யுங்கள். அது சரியான அலுவலகத்திற்குச் செல்லும்." },
+        { icon: "route", kicker: "தகவலுடன் இருங்கள்", title: "ஒவ்வொரு படியையும் பின்தொடருங்கள்", text: "உங்கள் புகார் எந்த அலுவலகத்தில் உள்ளது, அதன் கால வரம்பு என்ன என்பதைப் பாருங்கள்." },
+        { icon: "check-circle", kicker: "உங்கள் முடிவு", title: "சரியானதை நீங்களே உறுதிப்படுத்துங்கள்", text: "பிரச்சனை தீர்ந்ததும் உறுதிப்படுத்துங்கள். தீரவில்லை என்றால், புகார் அடுத்த அலுவலருக்குச் செல்லும்." },
+      ],
+    },
+  };
+  let lang = "en";
+  let slide = 0;
+
+  function renderSlide() {
+    const s = TEXT[lang].slides[slide];
+    $("slideIcon").setAttribute("href", `/assets/icons.svg#${s.icon}`);
+    $("slideKicker").textContent = s.kicker;
+    $("slideTitle").textContent = s.title;
+    $("slideText").textContent = s.text;
+    document.querySelectorAll("#dots button").forEach((dot, index) => {
+      dot.setAttribute("aria-current", String(index === slide));
+    });
+  }
+
+  function setLanguage(next) {
+    lang = TEXT[next] ? next : "en";
+    const t = TEXT[lang];
+    document.documentElement.lang = lang;
+    $("h1a").textContent = t.h1a;
+    const sky = document.createElement("span");
+    sky.className = "sky";
+    sky.textContent = t.h1b[1];
+    $("h1b").replaceChildren(document.createTextNode(t.h1b[0]), sky, document.createTextNode(t.h1b[2]));
+    $("lead").textContent = t.lead;
+    document.querySelectorAll("[data-chip]").forEach((chip) => {
+      chip.textContent = t.chips[Number(chip.dataset.chip)];
+    });
+    $("lang").value = lang;
+    renderSlide();
+    try { localStorage.setItem("portal_lang", lang); } catch (err) { /* not saved; English next time */ }
+  }
+
+  TEXT.en.slides.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.setAttribute("aria-label", `Show item ${index + 1}`);
+    dot.addEventListener("click", () => { slide = index; renderSlide(); });
+    $("dots").appendChild(dot);
+  });
+  const count = TEXT.en.slides.length;
+  $("prevSlide").addEventListener("click", () => { slide = (slide + count - 1) % count; renderSlide(); });
+  $("nextSlide").addEventListener("click", () => { slide = (slide + 1) % count; renderSlide(); });
+  let paused = false;
+  $("infoCard").addEventListener("mouseenter", () => { paused = true; });
+  $("infoCard").addEventListener("mouseleave", () => { paused = false; });
+  setInterval(() => {
+    if (!paused && !document.hidden) { slide = (slide + 1) % count; renderSlide(); }
+  }, 7000);
+
+  $("lang").addEventListener("change", (event) => setLanguage(event.target.value));
+  let saved = "en";
+  try { saved = localStorage.getItem("portal_lang") || "en"; } catch (err) { saved = "en"; }
+  setLanguage(saved);
+</script>
+</body>
+</html>

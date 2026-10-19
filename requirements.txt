@@ -1,0 +1,4 @@
+neuro-san-studio==0.4.2
+leaf-common==1.4.4
+pyhocon==0.3.63
+pytest==9.1.1

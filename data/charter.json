@@ -1,0 +1,159 @@
+{
+  "label": "CMWSSB Citizen's Charter 2021, PDF copy (page references are to that copy, printed from cmwssb-dev.interlaceindia.com). Verify against the official site cmwssb.tn.gov.in before any official use. This project is not affiliated with CMWSSB.",
+  "stage_order": ["depot", "deputy_ae", "area_engineer", "superintendent_engineer"],
+  "stage_labels": {
+    "depot": "Depot Engineer or Senior Accounts Officer",
+    "deputy_ae": "Deputy Area Engineer",
+    "area_engineer": "Area Engineer",
+    "superintendent_engineer": "Superintendent Engineer",
+    "chief_engineer": "Chief Engineer"
+  },
+  "escalation_rule": "The charter gives the number of days for each level (p. 4). It does not state whether these days are cumulative from registration or apply to each level separately. If not solved, a notification goes to the Chief Engineer (p. 4).",
+  "owners": {
+    "depot": "Depot Engineer or Senior Accounts Officer at the depot",
+    "national_helpline_14420": "Board call centre, National helpline 14420",
+    "grievance_cell": "Grievance Cell at Head Office"
+  },
+  "helplines": {
+    "complaint_cell_24x7": "45674567",
+    "toll_free": "1916",
+    "national_helpline_sewer_cleaning": "14420"
+  },
+  "escalation_matrix": {
+    "water_network": {"depot": 3, "deputy_ae": 2, "area_engineer": 2, "superintendent_engineer": 2},
+    "sewer_network": {"depot": 3, "deputy_ae": 2, "area_engineer": 2, "superintendent_engineer": 2},
+    "tax_charges": {"depot": 2, "deputy_ae": 2, "area_engineer": 2, "superintendent_engineer": 2},
+    "mobile_supply": {"depot": 2, "deputy_ae": 2, "area_engineer": 2, "superintendent_engineer": 2},
+    "new_connection": {"depot": 7, "deputy_ae": 4, "area_engineer": 3, "superintendent_engineer": 2}
+  },
+  "complaint_types": {
+    "water_leakage": {
+      "label": "Water leakage in a pipe",
+      "owner": "depot",
+      "escalation_key": "water_network",
+      "subtypes": {
+        "service_line": {"label": "service line", "fix_days": 3},
+        "distribution_main": {"label": "distribution main", "fix_days": 5},
+        "transmission_main": {"label": "transmission main", "fix_days": 7}
+      },
+      "default_subtype": "service_line",
+      "charter_row": "Complaint regarding leakage in main (p. 4, section C): service line 3, distribution main 5, transmission main 7. All three are shown in the PDF copy.",
+      "fix_note": "Shown in the PDF copy (p. 4, section C). Verify against the official site cmwssb.tn.gov.in before any official use."
+    },
+    "water_pollution": {
+      "label": "Contaminated or polluted water",
+      "owner": "depot",
+      "escalation_key": "water_network",
+      "subtypes": {
+        "identified_point": {"label": "pollution point easily identified", "fix_days": 7},
+        "not_identified": {"label": "pollution point not identified", "fix_days": 15}
+      },
+      "default_subtype": "identified_point",
+      "charter_row": "Complaint regarding pollution (p. 4, section C): point easily identified 7; otherwise 15"
+    },
+    "no_water_supply": {
+      "label": "No water or defective water supply",
+      "owner": "depot",
+      "escalation_key": "water_network",
+      "fix_days": 5,
+      "charter_row": "Attending no water supply / defective water supply (p. 4, section C): 5"
+    },
+    "defective_meter": {
+      "label": "Defective water meter",
+      "owner": "depot",
+      "escalation_key": "water_network",
+      "fix_days": 7,
+      "charter_row": "Replacement of defective water meter: 7 (p. 4, section C). Shown in the PDF copy.",
+      "fix_note": "Shown in the PDF copy (p. 4, section C). Verify against the official site cmwssb.tn.gov.in before any official use."
+    },
+    "handpump_repair": {
+      "label": "Hand pump repair",
+      "owner": "depot",
+      "escalation_key": "water_network",
+      "subtypes": {
+        "hand_pump": {"label": "hand pump", "fix_days": 2},
+        "india_mark_pump": {"label": "India Mark pump", "fix_days": 5}
+      },
+      "default_subtype": "hand_pump",
+      "charter_row": "Attending repairs (p. 4, section C): hand pump 2; India Mark pump 5"
+    },
+    "sewer_main_blockage": {
+      "label": "Sewer main blockage",
+      "owner": "depot",
+      "escalation_key": "sewer_network",
+      "fix_days": 4,
+      "charter_row": "Blockage of sewer line (mains) (p. 4, section D): 4"
+    },
+    "house_sewer_blockage": {
+      "label": "House sewer blockage",
+      "owner": "depot",
+      "escalation_key": "sewer_network",
+      "fix_days": 2,
+      "charter_row": "House sewer block (p. 4, section D): 2"
+    },
+    "damaged_sewer_line": {
+      "label": "Damaged sewer line",
+      "owner": "depot",
+      "escalation_key": "sewer_network",
+      "fix_days": 20,
+      "charter_row": "Repair to damaged sewer line / renewal of sewer line (p. 4, section D): 20"
+    },
+    "tax_charges": {
+      "label": "Tax and charges",
+      "owner": "depot",
+      "escalation_key": "tax_charges",
+      "fix_days": null,
+      "fix_note": "The charter gives no maintenance timeline for tax and charges. The escalation matrix applies (p. 4).",
+      "charter_row": "Grievances related to tax and charges (p. 4, section F): 2 days at each level"
+    },
+    "tanker_supply": {
+      "label": "Mobile (tanker) water supply",
+      "owner": "depot",
+      "escalation_key": "mobile_supply",
+      "fix_days": null,
+      "fix_note": "Charter (p. 4, section E): tanker supply within 24 to 48 hours of booking under normal conditions. The escalation matrix applies to grievances.",
+      "charter_row": "Supply of water through water tankers on booking (p. 4, section E): 24 to 48 hours; grievances (p. 4, section F): 2 days at each level"
+    },
+    "new_connection_delay": {
+      "label": "Delay in new water or sewer connection",
+      "owner": "depot",
+      "escalation_key": "new_connection",
+      "fix_days": 15,
+      "fix_note": "Charter (p. 3): house service connections within 15 days from registration on its merits.",
+      "charter_row": "Effecting house service connections (p. 3): within 15 days from registration; grievances (p. 4, section F): 7, 4, 3, 2 days"
+    },
+    "street_water_no_piped": {
+      "label": "Free street water where no piped supply exists",
+      "owner": "depot",
+      "escalation_key": null,
+      "fix_hours": 4,
+      "fix_note": "Charter (p. 4, section E): free street supply through a water tanker within 4 hours of complaint. The charter gives no escalation matrix for this service.",
+      "charter_row": "Supply of water on non-receipt of piped water supply (p. 4, section E): within 4 hours of complaint"
+    },
+    "septic_tank_clearance": {
+      "label": "Septic tank clearance",
+      "owner": "depot",
+      "escalation_key": null,
+      "fix_days": 10,
+      "fix_note": "Charter (p. 4, section E): clearance within 10 days from booking. The charter does not name an owner for this service; the depot is assumed.",
+      "charter_row": "Septic tank clearance (p. 4, section E): 10 days from booking"
+    },
+    "unsafe_cleaning": {
+      "label": "Unsafe sewer or septic cleaning",
+      "owner": "national_helpline_14420",
+      "escalation_key": null,
+      "fix_days": null,
+      "fix_note": "Routed to the 14420 national helpline (p. 6, section 6.8). The charter gives no timeline for this complaint type.",
+      "always_urgent": true,
+      "charter_row": "National helpline 14420 for unsafe septic tank and sewer cleaning (p. 6, section 6.8)"
+    },
+    "general_grievance": {
+      "label": "General grievance or complaint",
+      "owner": "grievance_cell",
+      "escalation_key": null,
+      "fix_days": null,
+      "fix_note": "The charter gives no timeline for grievance cell handling (p. 6, section 7). A human must set the deadline.",
+      "charter_row": "Grievance Cell registers general grievances (p. 6, section 7); no timeline given"
+    }
+  }
+}

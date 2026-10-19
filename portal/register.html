@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Register Complaint - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/home">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/home">Home</a>
+      <a href="/register" class="active" aria-current="page">Register Complaint</a>
+      <a href="/track">Track Complaint</a>
+      <a href="/home#services">Services</a>
+      <a href="/home#how">How It Works</a>
+    </nav>
+    <div class="top-right">
+      <div class="account" id="accountArea" hidden>
+        <button type="button" class="avatar" id="accountButton" aria-haspopup="true" aria-expanded="false" aria-label="Your account"></button>
+        <div class="account-panel" id="accountPanel" hidden>
+          <h3>Your details</h3>
+          <dl id="accountDetails"></dl>
+          <button type="button" class="btn outline block" id="logoutButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-out"/></svg>Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero compact">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <h1>Clean Water, Clear Drains <br class="wide-only">for Every Street in <span class="sky">Chennai</span></h1>
+    <p class="lead">Tell us what is wrong. The complaint goes to the officer for your field and ward.</p>
+  </div>
+</section>
+
+<main class="container register-layout">
+  <form class="form-card" id="complaintForm" novalidate>
+    <div class="form-head">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg>
+      <div>
+        <h1>Register Complaint</h1>
+        <p id="todayLine">Today</p>
+      </div>
+      <p class="mandatory"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg><span>Fields marked with <span class="req">*</span> are mandatory</span></p>
+    </div>
+
+    <div class="form-body stack" id="formBody">
+      <p class="notice info" id="serviceNote" hidden></p>
+
+      <!-- 1. Emergency or not -->
+      <section class="reg-step" aria-labelledby="kindTitle">
+        <h2 class="reg-title" id="kindTitle"><span class="reg-no">1</span>Type of complaint <span class="req">*</span></h2>
+        <div class="kind-grid" role="radiogroup" aria-labelledby="kindTitle">
+          <label class="kind-card emergency">
+            <input type="radio" name="kind" value="emergency">
+            <span class="kind-title">Emergency</span>
+            <span class="kind-text">Fire, rescue, gas leak, a fallen live wire or anyone in danger right now.</span>
+          </label>
+          <label class="kind-card civic">
+            <input type="radio" name="kind" value="civic" checked>
+            <span class="kind-title">Not emergency</span>
+            <span class="kind-text">Water, drains, garbage, roads and other everyday civic problems.</span>
+          </label>
+        </div>
+        <p class="hint emergency-note" id="emergencyNote" hidden>If a life is at risk, call 112 first. Then fill in this form so the right officer sees it.</p>
+      </section>
+
+      <!-- 2. The type of complaint, from the list for the kind chosen -->
+      <section class="reg-step" aria-labelledby="catTitle">
+        <h2 class="reg-title" id="catTitle"><span class="reg-no">2</span><span id="catTitleText">Choose the problem</span> <span class="req">*</span></h2>
+        <div class="choice-list" id="categoryList" role="radiogroup" aria-labelledby="catTitle"></div>
+      </section>
+
+      <!-- 3. Photos: only for not emergency -->
+      <section class="reg-step" id="photoStep" aria-labelledby="photoTitle">
+        <h2 class="reg-title" id="photoTitle"><span class="reg-no">3</span>Photos of the problem <span class="req">*</span></h2>
+        <p class="hint">Upload 3 photos. JPEG, PNG or WebP. Large photos are made smaller on your phone before they are sent.</p>
+        <div class="photo-grid" id="photoGrid"></div>
+        <p class="hint" id="photoCount">0 of 3 photos added</p>
+      </section>
+
+      <!-- 4. Address: picked like a delivery address, with Add address -->
+      <section class="reg-step" aria-labelledby="addrTitle">
+        <h2 class="reg-title" id="addrTitle"><span class="reg-no" id="addrNo">3</span>Address of the problem <span class="req">*</span></h2>
+        <div class="addr-list" id="addrList" role="radiogroup" aria-labelledby="addrTitle"></div>
+        <button type="button" class="btn outline small addr-add-button" id="addAddressButton">+ Add address</button>
+
+        <div class="addr-form" id="addrForm" hidden>
+          <h3>Add a new address</h3>
+          <div class="addr-grid">
+            <div class="field"><label for="aName">Full name <span class="req">*</span></label>
+              <input class="input" id="aName" type="text" maxlength="100" autocomplete="name"></div>
+            <div class="field"><label for="aMobile">Mobile number</label>
+              <input class="input" id="aMobile" type="text" readonly></div>
+            <div class="field"><label for="aHouse">House, flat or building <span class="req">*</span></label>
+              <input class="input" id="aHouse" type="text" maxlength="100" placeholder="For example: No. 12, Ground floor"></div>
+            <div class="field"><label for="aStreet">Street or road <span class="req">*</span></label>
+              <input class="input" id="aStreet" type="text" maxlength="100" placeholder="For example: 4th Main Road"></div>
+            <div class="field"><label for="aArea">Area <span class="req">*</span></label>
+              <input class="input" id="aArea" type="text" maxlength="100" placeholder="For example: Teynampet"></div>
+            <div class="field"><label for="aCity">City</label>
+              <input class="input" id="aCity" type="text" value="Chennai" readonly></div>
+            <div class="field addr-wide"><label for="aLandmark">Landmark</label>
+              <input class="input" id="aLandmark" type="text" maxlength="100" placeholder="For example: opposite the bus stop"></div>
+          </div>
+          <p class="error" id="addrError" role="alert" hidden></p>
+          <div class="form-actions">
+            <button type="button" class="btn outline small" id="cancelAddress">Cancel</button>
+            <button type="button" class="btn small" id="saveAddress">Use this address</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Describe and submit -->
+      <section class="reg-step" aria-labelledby="descTitle">
+        <h2 class="reg-title" id="descTitle"><span class="reg-no" id="descNo">4</span>Describe the problem <span class="req">*</span></h2>
+        <textarea class="input" id="complaint" rows="5" maxlength="2000" required
+          placeholder="For example: no water has come to our street for three days."></textarea>
+        <p class="hint"><span id="charCount">0</span> of 2000 characters. Say where the problem is and since when.</p>
+        <label class="check"><input id="useLlm" type="checkbox" checked> Use the local model to help sort the complaint, if it is running on this computer</label>
+        <p id="fileError" class="error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="button" class="btn outline" id="resetButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#reset"/></svg>Reset</button>
+          <button type="submit" class="btn" id="fileSubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#send"/></svg>Submit</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="form-body stack" id="doneBody" hidden>
+      <div class="success-id">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#check-circle"/></svg>
+        <div>
+          <p id="doneTitle">Your complaint is registered. Complaint ID:</p>
+          <strong id="doneId"></strong>
+          <span>Keep this complaint ID. Use it on Track Complaint to follow your complaint.</span>
+        </div>
+      </div>
+      <dl class="result-grid" id="doneDetails"></dl>
+      <div class="toolbar">
+        <a class="btn" id="trackThis" href="/track"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>Track this complaint</a>
+        <button type="button" class="btn outline" id="anotherButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg>Register another</button>
+        <a class="btn outline" href="/home"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg>Back to home</a>
+      </div>
+      <div class="agents-box" id="agentsBox">
+        <h3><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#sparkle"/></svg>From the agents</h3>
+        <p class="muted">Message from the complaint router about this complaint.</p>
+        <div id="routerMessageBody"></div>
+      </div>
+      <div id="routerTimelineBox" hidden>
+        <h2>Time limits for your complaint</h2>
+        <div id="routerTimeline"></div>
+      </div>
+      <h2>What happens next</h2>
+      <ol class="muted">
+        <li>A field worker accepts your complaint. You will see "Allotted" and "Work in progress".</li>
+        <li>When the work is done, a code comes to your mobile. Give it to the worker only if the problem is fixed.</li>
+        <li>If the time limit passes, the officers get a notice and the complaint moves up to the next officer.</li>
+      </ol>
+    </div>
+  </form>
+
+  <!-- Your complaints: every complaint this citizen filed, with Completed or Not completed. Updates by itself. -->
+  <aside class="mine-panel" aria-labelledby="mineTitle">
+    <div class="mine-head">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#clipboard-check"/></svg>
+      <div>
+        <h2 id="mineTitle">Your complaints</h2>
+        <p id="mineCount">Loading ...</p>
+      </div>
+    </div>
+    <span class="live" id="mineLive">Live</span>
+    <ul class="mine-list" id="mineList"></ul>
+    <p class="mine-empty" id="mineEmpty" hidden>You have not registered a complaint yet. Your complaints will appear here.</p>
+  </aside>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say, el, when } = Portal;
+
+  // The lists the citizen chooses from. Labels match the portal's wording exactly.
+  const EMERGENCY = [
+    ["emergency_rescue", "Emergency Rescue"],
+    ["fire_smoke", "Fire and smoke emergencies"],
+    ["ambulance_medical", "Ambulance and medical emergencies"],
+    ["lpg_leak", "LPG gas leakage"],
+    ["hazardous_gas", "Hazardous gas or chemical leakage"],
+    ["flood_rescue", "Flood rescue and evacuation"],
+    ["building_collapse", "Building collapse and trapped persons"],
+    ["electrical_hazard", "Electrical hazards and fallen live wires"],
+    ["road_accident", "Road accidents requiring rescue"],
+    ["lift_trapped", "People trapped in lifts or confined spaces"],
+    ["tree_fall", "Tree falls blocking access or threatening lives"],
+    ["drowning", "Drowning and water rescue"],
+    ["landslide", "Landslides and structural hazards"],
+  ];
+  const CIVIC = [
+    ["water_supply", "Water Supply"],
+    ["drainage_sewerage", "Drainage and Sewerage"],
+    ["garbage_sanitation", "Garbage and Sanitation"],
+    ["roads_footpaths", "Roads and Footpaths"],
+    ["streetlights", "Streetlights"],
+    ["flooding_waterlogging", "Flooding and Waterlogging"],
+    ["public_health_strays", "Public Health and Stray Animals"],
+    ["parks_infrastructure", "Parks and Public Infrastructure"],
+    ["municipal_services_taxes", "Municipal Services and Taxes"],
+    ["other_civic", "Other Complaints"],
+  ];
+  const PHOTOS_NEEDED = 3;
+  const MAX_SIDE = 1600;
+
+  // A service card on the home page opens this form with a matching example.
+  const SERVICES = {
+    water: ["civic", "water_supply", "For example: no water has come to our street for three days."],
+    leak: ["civic", "water_supply", "For example: water is leaking from the pipe in front of house number 12 since yesterday."],
+    sewer: ["civic", "drainage_sewerage", "For example: the sewer on our street is blocked and overflowing onto the road."],
+    quality: ["civic", "water_supply", "For example: the tap water is brown and smells bad since Monday."],
+    billing: ["civic", "municipal_services_taxes", "For example: my water bill this month is much higher than usual."],
+    connection: ["civic", "municipal_services_taxes", "For example: I applied for a new water connection two months ago and nothing has happened."],
+  };
+
+  let profile = null;
+  let photos = [];          // data: URLs, one per slot (up to 3)
+  let savedAddresses = [];  // addresses the citizen added on this device, plus the registered one
+  let selectedAddress = null;
+
+  // Today's date at the top of the form.
+  $("todayLine").textContent = "Today: " + new Date().toLocaleDateString("en-IN", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+
+  function kind() {
+    return document.querySelector('input[name="kind"]:checked').value;
+  }
+
+  function radioRow(group, value, label, checked) {
+    const id = `${group}-${value}`;
+    const input = el("input", { type: "radio", name: group, value, id });
+    input.checked = checked;
+    return el("label", { className: "choice", for: id }, input, el("span", null, label));
+  }
+
+  function renderCategories(preselect) {
+    const list = kind() === "emergency" ? EMERGENCY : CIVIC;
+    $("catTitleText").textContent = kind() === "emergency" ? "Choose the emergency" : "Choose the problem";
+    $("categoryList").replaceChildren(...list.map(([key, label], i) =>
+      radioRow("category", key, label, preselect ? key === preselect : false)));
+  }
+
+  function renderPhotos() {
+    const grid = $("photoGrid");
+    grid.replaceChildren(...[0, 1, 2].map((slot) => {
+      const preview = photos[slot]
+        ? el("img", { src: photos[slot], alt: `Photo ${slot + 1}` })
+        : el("span", { className: "photo-empty" }, `Photo ${slot + 1}`);
+      const input = el("input", { type: "file", accept: "image/jpeg,image/png,image/webp", id: `photo-${slot}` });
+      input.addEventListener("change", () => addPhoto(slot, input));
+      return el("label", { className: "photo-slot", for: `photo-${slot}` }, preview, input,
+        el("span", { className: "photo-change" }, photos[slot] ? "Change" : "Add photo"));
+    }));
+    $("photoCount").textContent = `${photos.filter(Boolean).length} of ${PHOTOS_NEEDED} photos added`;
+  }
+
+  // Make the picture smaller before it is sent, so a phone photo is never too large.
+  function shrink(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        const scale = Math.min(1, MAX_SIDE / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("That file is not a picture.")); };
+      image.src = url;
+    });
+  }
+
+  async function addPhoto(slot, input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      say("fileError", "Choose a JPEG, PNG or WebP picture.");
+      return;
+    }
+    try {
+      photos[slot] = await shrink(file);
+      say("fileError", "");
+    } catch (err) {
+      say("fileError", err.message);
+    }
+    renderPhotos();
+  }
+
+  // Addresses: the registered one, and any the citizen adds (kept on this device for this mobile number).
+  function addressKey() {
+    return `portal.addresses.${profile ? profile.mobile : ""}`;
+  }
+
+  function loadSavedAddresses() {
+    try {
+      return JSON.parse(localStorage.getItem(addressKey()) || "[]");
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function storeAddresses(list) {
+    try {
+      localStorage.setItem(addressKey(), JSON.stringify(list));
+    } catch (_) {
+      // Browsers that block storage: the address still works for this one complaint.
+    }
+  }
+
+  function addressText(a) {
+    const parts = [a.house, a.street, a.area].filter(Boolean);
+    if (!/chennai\s*$/i.test(parts.join(", "))) parts.push("Chennai");
+    return parts.join(", ") + (a.landmark ? ` (${a.landmark})` : "");
+  }
+
+  function renderAddresses() {
+    const list = [];
+    if (profile && profile.address) {
+      list.push({ id: "registered", label: "Your registered address", house: profile.address, landmark: "" });
+    }
+    savedAddresses.forEach((a) => list.push(a));
+    if (!selectedAddress && list.length) selectedAddress = list[0].id;
+    $("addrList").replaceChildren(...list.map((a) => {
+      const input = el("input", { type: "radio", name: "address", value: a.id, id: `addr-${a.id}` });
+      input.checked = a.id === selectedAddress;
+      input.addEventListener("change", () => { selectedAddress = a.id; });
+      return el("label", { className: "addr-card", for: `addr-${a.id}` },
+        input,
+        el("span", { className: "addr-body" },
+          el("strong", null, a.label || a.name || "Address"),
+          el("span", null, addressText(a))));
+    }));
+  }
+
+  function currentAddress() {
+    const picked = [profile && profile.address ? { id: "registered", house: profile.address } : null, ...savedAddresses]
+      .filter(Boolean).find((a) => a.id === selectedAddress);
+    if (!picked) return "";
+    return picked.id === "registered" ? picked.house : addressText(picked);
+  }
+
+  function currentLandmark() {
+    const picked = savedAddresses.find((a) => a.id === selectedAddress);
+    return picked && picked.landmark ? picked.landmark : "";
+  }
+
+  $("addAddressButton").addEventListener("click", () => {
+    $("aName").value = profile ? profile.name || "" : "";
+    $("aMobile").value = profile ? profile.mobile || "" : "";
+    say("addrError", "");
+    $("addrForm").hidden = false;
+    $("aHouse").focus();
+  });
+  $("cancelAddress").addEventListener("click", () => { $("addrForm").hidden = true; });
+  $("saveAddress").addEventListener("click", () => {
+    const house = $("aHouse").value.trim();
+    const street = $("aStreet").value.trim();
+    const area = $("aArea").value.trim();
+    const name = $("aName").value.trim();
+    if (!name || !house || !street || !area) {
+      say("addrError", "Fill in the name, house, street and area.");
+      return;
+    }
+    const id = `new-${Date.now()}`;
+    savedAddresses.push({ id, name, label: "New address", house, street, area, landmark: $("aLandmark").value.trim() });
+    storeAddresses(savedAddresses);
+    selectedAddress = id;
+    ["aHouse", "aStreet", "aArea", "aLandmark"].forEach((f) => { $(f).value = ""; });
+    $("addrForm").hidden = true;
+    say("addrError", "");
+    renderAddresses();
+  });
+
+  function applyKind() {
+    const isEmergency = kind() === "emergency";
+    $("emergencyNote").hidden = !isEmergency;
+    $("photoStep").hidden = isEmergency;
+    $("addrNo").textContent = isEmergency ? "3" : "4";
+    $("descNo").textContent = isEmergency ? "4" : "5";
+    renderCategories();
+  }
+  document.querySelectorAll('input[name="kind"]').forEach((input) => input.addEventListener("change", applyKind));
+
+  function countChars() {
+    $("charCount").textContent = $("complaint").value.length;
+  }
+  $("complaint").addEventListener("input", countChars);
+
+  $("resetButton").addEventListener("click", () => {
+    document.querySelectorAll('input[name="category"]').forEach((input) => { input.checked = false; });
+    photos = [];
+    renderPhotos();
+    $("complaint").value = "";
+    $("useLlm").checked = true;
+    countChars();
+    say("fileError", "");
+  });
+
+  $("anotherButton").addEventListener("click", () => {
+    $("doneBody").hidden = true;
+    $("formBody").hidden = false;
+    $("complaint").value = "";
+    photos = [];
+    renderPhotos();
+    countChars();
+    $("complaint").focus();
+  });
+
+  function fail(message, focus) {
+    say("fileError", message);
+    if (focus) focus.focus();
+    return false;
+  }
+
+  function checkForm() {
+    const picked = document.querySelector('input[name="category"]:checked');
+    if (!picked) return fail("Choose the type of complaint from the list.", $("categoryList"));
+    if (kind() === "civic" && photos.filter(Boolean).length !== PHOTOS_NEEDED) {
+      return fail(`Add ${PHOTOS_NEEDED} photos of the problem.`, $("photoStep"));
+    }
+    if (!currentAddress()) return fail("Choose the address of the problem, or add one.", $("addrList"));
+    if ($("complaint").value.trim().length < 10) {
+      return fail("Describe the problem in at least 10 characters.", $("complaint"));
+    }
+    return true;
+  }
+
+  $("complaintForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("fileError", "");
+    if (!checkForm()) return;
+    $("fileSubmit").disabled = true;
+    try {
+      const view = await post("/api/complaints", {
+        kind: kind(),
+        category: document.querySelector('input[name="category"]:checked').value,
+        photos: kind() === "civic" ? photos.filter(Boolean) : [],
+        complaint: $("complaint").value,
+        address: currentAddress(),
+        landmark: currentLandmark(),
+        use_llm: $("useLlm").checked,
+      });
+      $("doneTitle").textContent = "Your complaint is registered. Complaint ID:";
+      $("doneId").textContent = view.id;
+      $("trackThis").href = `/track?id=${encodeURIComponent(view.id)}`;
+      const rows = [
+        ["Complaint ID", view.id],
+        ["Type", view.complaint_kind === "emergency" ? "Emergency" : "Not emergency"],
+        ["Problem", view.category_label || view.complaint_label],
+        ["Photos", String(view.photo_count || 0)],
+        ["Field", view.field],
+        ["Status", view.status_text],
+        ["With", view.current_office],
+        ["Assigned to", view.assigned_to],
+        ["Address of the problem", view.problem_address || "Not given"],
+        ["Landmark", view.landmark || "None"],
+        ["Zone and ward", `${view.zone}, ${view.ward}`],
+        ["Time limit", when(view.deadline)],
+      ];
+      $("doneDetails").replaceChildren(...rows.flatMap(([label, value]) => [el("dt", null, label), el("dd", null, value)]));
+      // The router's message and timeline for this complaint, shown as soon as it is registered.
+      $("routerMessageBody").replaceChildren(...(view.router_message
+        ? Portal.routerMessage(view.router_message).filter(Boolean)
+        : [el("p", { className: "muted" }, "The router sent no message for this complaint.")]));
+      const routerTimeline = Portal.routerProgress(view.router_progress);
+      $("routerTimelineBox").hidden = !routerTimeline;
+      if (routerTimeline) $("routerTimeline").replaceChildren(routerTimeline);
+      $("formBody").hidden = true;
+      $("doneBody").hidden = false;
+      loadMine();
+      window.scrollTo({ top: $("complaintForm").offsetTop - 16, behavior: "smooth" });
+    } catch (err) {
+      if (err.status === 401) { window.location.replace("/"); return; }
+      say("fileError", err.message);
+    } finally {
+      $("fileSubmit").disabled = false;
+    }
+  });
+
+  // Your complaints panel: the complaint ID, and whether it is completed or not.
+  let mineSignature = "";
+  async function loadMine() {
+    const result = await get("/api/citizen/complaints");
+    if (!result.ok) {
+      if (result.status === 401) { window.location.replace("/"); return; }
+      $("mineLive").classList.add("paused");
+      $("mineLive").textContent = "Cannot reach the server";
+      return;
+    }
+    $("mineLive").classList.remove("paused");
+    $("mineLive").textContent = "Live";
+    const items = result.data.complaints || [];
+    const signature = JSON.stringify(items.map((item) => [item.id, item.status]));
+    if (signature === mineSignature) return;
+    mineSignature = signature;
+    const done = (item) => item.status === "closed" || item.status === "awaiting_confirmation";
+    const completed = items.filter(done).length;
+    $("mineCount").textContent = items.length
+      ? `${items.length} registered · ${completed} completed · ${items.length - completed} not completed`
+      : "None yet";
+    $("mineEmpty").hidden = items.length > 0;
+    $("mineList").replaceChildren(...items.map((item) => el("li", null,
+      el("a", { className: "cid", href: `/track?id=${encodeURIComponent(item.id)}`, title: "Track this complaint" }, item.id),
+      done(item)
+        ? el("span", { className: "pill resolved" }, "Completed")
+        : el("span", { className: "pill notdone" }, "Not completed"))));
+  }
+
+  (async () => {
+    profile = await Portal.requireCitizen();
+    Portal.setupAccount(profile.name, Portal.citizenAccountRows(profile));
+    savedAddresses = loadSavedAddresses();
+
+    // A home page service opens the form with the matching type and example.
+    const service = SERVICES[new URLSearchParams(window.location.search).get("service")];
+    if (service) {
+      $("complaint").placeholder = service[2];
+      say("serviceNote", "The type of complaint is already chosen for you. Change it if it is not right.");
+      document.querySelector(`input[name="kind"][value="${service[0]}"]`).checked = true;
+      applyKind();
+      const input = document.querySelector(`input[name="category"][value="${service[1]}"]`);
+      if (input) input.checked = true;
+    } else {
+      applyKind();
+    }
+    renderPhotos();
+    renderAddresses();
+
+    loadMine();
+    setInterval(() => { if (!document.hidden) loadMine(); }, 5000);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>User sign-up - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <nav class="iconlinks" aria-label="Main">
+      <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg>Home</a>
+      <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>User Login</a>
+      <a href="/?tab=worker"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#worker"/></svg>Worker Login</a>
+      <a href="/?tab=officer"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#briefcase"/></svg>Officer Login</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero compact">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <h1>Clean Water, Clear Drains <br class="wide-only">for Every Street in <span class="sky">Chennai</span></h1>
+    <p class="lead">Report water and sewer problems, follow their progress, and confirm when they are fixed.</p>
+    <div class="chips">
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg>Clean water</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#pipe"/></svg>Clear drains</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#zap"/></svg>Quick response</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#megaphone"/></svg>Your voice matters</span>
+    </div>
+  </div>
+</section>
+
+<nav class="strip" aria-label="Sign-up">
+  <div class="container">
+    <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg>Home</a>
+    <a href="/signup" class="active" aria-current="page"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>User Sign-up</a>
+    <a href="/worker/signup"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#worker"/></svg>Worker Sign-up</a>
+    <a href="/officer/signup"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#briefcase"/></svg>Officer Sign-up</a>
+    <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-in"/></svg>Log in</a>
+  </div>
+</nav>
+
+<main class="container">
+  <form class="form-card" id="signupForm">
+    <div class="form-head">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg>
+      <div>
+        <h1>User Sign-up</h1>
+        <p>Enter your details below to create your account.</p>
+      </div>
+      <p class="mandatory"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg><span>Fields marked with <span class="req">*</span> are mandatory</span></p>
+    </div>
+
+    <div class="form-body">
+      <div class="col">
+        <div class="field">
+          <label for="name">Name <span class="req">*</span></label>
+          <input class="input" id="name" type="text" maxlength="100" autocomplete="name" placeholder="Enter your name" required>
+        </div>
+        <div class="field">
+          <label for="address">Address <span class="req">*</span></label>
+          <input class="input" id="address" type="text" maxlength="300" autocomplete="street-address" placeholder="House No. / Street / Area" required>
+          <p class="hint">Used to find your zone. Include your area name.</p>
+        </div>
+        <div class="field">
+          <label for="zone">Zone <span class="req">*</span></label>
+          <select class="input" id="zone" required><option value="">Loading zones ...</option></select>
+          <p class="hint" id="matchNote" hidden></p>
+        </div>
+        <div class="field">
+          <label for="ward">Ward (Greater Chennai Corporation) <span class="req">*</span></label>
+          <select class="input" id="ward" required disabled><option value="">Select a zone first</option></select>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="field">
+          <label for="country">Country</label>
+          <input class="input" id="country" type="text" value="India" readonly>
+        </div>
+        <div class="field">
+          <label for="state">State</label>
+          <input class="input" id="state" type="text" value="Tamil Nadu" readonly>
+        </div>
+        <div class="field">
+          <label for="district">District</label>
+          <input class="input" id="district" type="text" value="Chennai" readonly>
+        </div>
+        <div class="field">
+          <label for="contact">Mobile number <span class="req">*</span></label>
+          <input class="input" id="contact" type="tel" inputmode="numeric" maxlength="16" autocomplete="tel" placeholder="Enter your 10-digit mobile number" required>
+          <p class="hint">You log in with a code to this number.</p>
+        </div>
+        <p id="signupError" class="error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="button" class="btn outline" id="resetButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#reset"/></svg>Reset</button>
+          <button type="submit" class="btn" id="signupSubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#send"/></svg>Submit</button>
+        </div>
+      </div>
+    </div>
+    <p class="form-foot">Already signed up? <a href="/">Log in with your mobile number</a></p>
+  </form>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say } = Portal;
+  let zones = [];
+
+  function fillZones(selected) {
+    const select = $("zone");
+    select.replaceChildren(new Option("Select a zone ...", ""));
+    for (const zone of zones) {
+      select.appendChild(new Option(`${zone.name} zone`, String(zone.number)));
+    }
+    select.value = selected ? String(selected) : "";
+    fillWards();
+  }
+
+  function fillWards() {
+    const select = $("ward");
+    const zone = zones.find((item) => String(item.number) === $("zone").value);
+    select.replaceChildren();
+    if (!zone) {
+      select.appendChild(new Option("Select a zone first", ""));
+      select.disabled = true;
+      return;
+    }
+    select.appendChild(new Option("Select your ward ...", ""));
+    for (const ward of zone.wards) {
+      select.appendChild(new Option(ward.label, String(ward.number)));
+    }
+    select.disabled = false;
+  }
+
+  async function loadZones() {
+    const result = await get("/api/locations");
+    if (!result.ok) {
+      $("zone").replaceChildren(new Option("Zones could not be loaded. Refresh the page.", ""));
+      return;
+    }
+    zones = result.data.zones;
+    fillZones();
+  }
+
+  // After the address is typed, suggest the zone it matches. The citizen can still pick another.
+  let lastMatched = "";
+  async function matchAddress() {
+    const address = $("address").value.trim();
+    if (address.length < 10 || address === lastMatched || !zones.length) return;
+    lastMatched = address;
+    try {
+      const view = await post("/api/citizen/match", { address: address });
+      if (view.matched && view.zones.length) {
+        if (!$("zone").value) {
+          $("zone").value = String(view.zones[0].number);
+          fillWards();
+        }
+        say("matchNote", view.note);
+      } else {
+        say("matchNote", "No zone name in your address matched. Choose your zone from the list.");
+      }
+    } catch (err) {
+      say("matchNote", "");
+    }
+  }
+
+  $("address").addEventListener("blur", matchAddress);
+  $("zone").addEventListener("change", fillWards);
+
+  $("resetButton").addEventListener("click", () => {
+    $("signupForm").reset();
+    lastMatched = "";
+    fillZones();
+    say("matchNote", "");
+    say("signupError", "");
+  });
+
+  $("signupForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("signupError", "");
+    $("signupSubmit").disabled = true;
+    try {
+      await post("/api/citizen/signup", {
+        name: $("name").value,
+        contact: $("contact").value,
+        address: $("address").value,
+        ward_number: $("ward").value,
+      });
+      window.location.assign("/?signed_up=1");
+    } catch (err) {
+      say("signupError", err.message);
+      $("signupSubmit").disabled = false;
+    }
+  });
+
+  loadZones();
+</script>
+</body>
+</html>

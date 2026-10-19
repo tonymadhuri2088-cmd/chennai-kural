@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complaint Router</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1d2330;
+    --muted: #5b6478;
+    --border: #d9dde6;
+    --accent: #1f6feb;
+    --accent-text: #ffffff;
+    --warn-bg: #fff4e5;
+    --warn-text: #7a4a00;
+    --draft-bg: #eef6f1;
+    --draft-border: #b9d9c4;
+    --error: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151c;
+      --card: #1b2030;
+      --text: #e6e9f0;
+      --muted: #9aa3b5;
+      --border: #2e3649;
+      --accent: #6ea8ff;
+      --accent-text: #0d1220;
+      --warn-bg: #3a2c12;
+      --warn-text: #ffd79a;
+      --draft-bg: #15261d;
+      --draft-border: #2d5a40;
+      --error: #ff8a80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151c;
+    --card: #1b2030;
+    --text: #e6e9f0;
+    --muted: #9aa3b5;
+    --border: #2e3649;
+    --accent: #6ea8ff;
+    --accent-text: #0d1220;
+    --warn-bg: #3a2c12;
+    --warn-text: #ffd79a;
+    --draft-bg: #15261d;
+    --draft-border: #2d5a40;
+    --error: #ff8a80;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 8px 0 4px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; }
+  h3 { font-size: 1rem; margin: 16px 0 6px; }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  label { display: block; font-weight: 600; margin: 8px 0 4px; font-size: 0.95rem; }
+  textarea, input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
+  .grow { flex: 1 1 220px; }
+  .check { display: flex; align-items: center; gap: 6px; font-weight: 400; margin: 0 0 10px; }
+  button {
+    font: inherit;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-text);
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: default; }
+  button.ghost { background: transparent; color: var(--accent); }
+  .error { color: var(--error); font-weight: 600; margin: 12px 0 0; }
+  .status { background: var(--warn-bg); color: var(--warn-text); border-radius: 8px; padding: 8px 10px; }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: var(--draft-bg);
+    border: 1px solid var(--draft-border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  ul { margin: 4px 0 0 18px; padding: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Complaint router</h1>
+    <p class="muted">Offline tool for Chennai water and sewer complaints. Not affiliated with CMWSSB. Every reply is a draft and is never sent.</p>
+  </header>
+
+  <section class="card">
+    <form id="form">
+      <label for="complaint">Complaint</label>
+      <textarea id="complaint" rows="4" maxlength="2000" required placeholder="Type or paste the citizen's complaint"></textarea>
+      <div class="row">
+        <div class="grow">
+          <label for="days">Days since registration (only if the citizen gave them)</label>
+          <input id="days" type="number" min="0" max="3650" step="any" inputmode="decimal">
+        </div>
+        <label class="check"><input id="useLlm" type="checkbox" checked> Use the local LLM to classify</label>
+      </div>
+      <div class="row">
+        <button type="submit" id="submit">Route complaint</button>
+        <button type="button" class="ghost" data-sample="leak">Leak sample</button>
+        <button type="button" class="ghost" data-sample="sewer">Sewer sample (10 days)</button>
+      </div>
+      <p id="error" class="error" hidden></p>
+    </form>
+  </section>
+
+  <section id="results" hidden>
+    <div class="card">
+      <h2>Classification</h2>
+      <p><strong id="typeLabel"></strong> <span id="subtypeLine" class="muted"></span></p>
+      <p id="classifierLine"></p>
+      <p id="llmStatus" class="status"></p>
+      <p>Urgent: <span id="urgent"></span></p>
+      <h3>Review notes</h3>
+      <ul id="notes"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Draft reply</h2>
+      <p class="muted">Exact text from the charter tools. The LLM does not write this part. Not sent.</p>
+      <pre id="reply"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Route and timeline</h2>
+      <p>Owner: <span id="owner"></span></p>
+      <p>Charter timeline: <span id="timelineLine"></span></p>
+      <h3>Escalation days as printed</h3>
+      <table>
+        <thead><tr><th>Officer level</th><th>Days</th></tr></thead>
+        <tbody id="levels"></tbody>
+      </table>
+      <p id="escalationNote" class="muted"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  const SAMPLES = {
+    leak: { text: "Water is leaking from the pipe near my house for three days, please fix it.", days: "" },
+    sewer: { text: "Sewer main is blocked, manhole overflowing on our street.", days: "10" }
+  };
+
+  function showError(message) {
+    $("error").textContent = message;
+    $("error").hidden = !message;
+  }
+
+  function setText(id, value) {
+    $(id).textContent = value;
+  }
+
+  function render(data) {
+    const c = data.classification;
+    const t = data.timeline;
+    const e = data.escalation;
+
+    $("results").hidden = false;
+    setText("typeLabel", t.label || "Not classified");
+    setText("subtypeLine", c.subtype ? `(subtype: ${c.subtype})` : "");
+    setText("classifierLine", c.classifier === "llm"
+      ? "Classified by the local LLM."
+      : "Classified by the keyword classifier.");
+    setText("llmStatus", c.llm_status);
+    setText("urgent", c.urgent ? "Yes. Check the reply for the urgent line." : "No");
+
+    const notes = $("notes");
+    notes.replaceChildren();
+    for (const note of c.notes) {
+      const item = document.createElement("li");
+      item.textContent = note;
+      notes.appendChild(item);
+    }
+    if (c.notes.length === 0) {
+      const item = document.createElement("li");
+      item.textContent = "None.";
+      notes.appendChild(item);
+    }
+
+    setText("reply", data.reply);
+    setText("owner", data.route.owner || "To be assigned");
+
+    let timeline = "None stated in the charter for this complaint type";
+    if (t.fix_days !== null && t.fix_days !== undefined) timeline = `${t.fix_days} days`;
+    else if (t.fix_hours !== null && t.fix_hours !== undefined) timeline = `${t.fix_hours} hours`;
+    setText("timelineLine", timeline);
+
+    const levels = $("levels");
+    levels.replaceChildren();
+    if (e.applies) {
+      for (const level of e.levels_as_printed) {
+        const row = document.createElement("tr");
+        const name = document.createElement("td");
+        const days = document.createElement("td");
+        name.textContent = level.level;
+        days.textContent = `${level.days} days`;
+        row.append(name, days);
+        levels.appendChild(row);
+      }
+      setText("escalationNote", `${e.after_last_level} ${e.note}`);
+    } else {
+      setText("escalationNote", e.reason);
+    }
+  }
+
+  document.querySelectorAll("[data-sample]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const sample = SAMPLES[button.dataset.sample];
+      $("complaint").value = sample.text;
+      $("days").value = sample.days;
+    });
+  });
+
+  $("form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    showError("");
+
+    const daysRaw = $("days").value.trim();
+    const daysValue = daysRaw === "" ? null : Number(daysRaw);
+    if (daysRaw !== "" && Number.isNaN(daysValue)) {
+      showError("Days since registration must be a number.");
+      return;
+    }
+
+    $("submit").disabled = true;
+    $("submit").textContent = "Working...";
+    try {
+      const response = await fetch("/api/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          complaint: $("complaint").value,
+          days_elapsed: daysValue,
+          use_llm: $("useLlm").checked
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        showError(data.error || "The server could not route this complaint.");
+        return;
+      }
+      render(data);
+    } catch (err) {
+      showError("Could not reach the local server. Check that it is running.");
+    } finally {
+      $("submit").disabled = false;
+      $("submit").textContent = "Route complaint";
+    }
+  });
+</script>
+</body>
+</html>

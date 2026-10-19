@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Worker - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<!-- Worker board: complaints registered (to accept) and allotted tasks (to complete with the citizen's code). Updates every 5 seconds. -->
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/worker">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Worker dashboard</span></span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="#available" id="topAvailable" class="active">Complaints registered</a>
+      <a href="#mine" id="topMine">Allotted tasks</a>
+    </nav>
+    <div class="top-right">
+      <div class="account" id="accountArea" hidden>
+        <button type="button" class="avatar" id="accountButton" aria-haspopup="true" aria-expanded="false" aria-label="Your account"></button>
+        <div class="account-panel" id="accountPanel" hidden>
+          <h3>Your details</h3>
+          <dl id="accountDetails"></dl>
+          <button type="button" class="btn outline block" id="logoutButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-out"/></svg>Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero compact">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <p class="greeting" id="greeting">Welcome</p>
+    <h1>Clean Water, Clear Drains <br class="wide-only">for Every Street in <span class="sky">Chennai</span></h1>
+    <p class="lead" id="whoLine">Accept a complaint, fix the problem, and close it with the citizen's code.</p>
+  </div>
+</section>
+
+<main class="container">
+  <div class="desk">
+    <aside class="side-nav" aria-label="Lists">
+      <button type="button" class="side-card" id="navAvailable" data-view="available" aria-current="true">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#clipboard-check"/></svg>Complaints registered<span class="count" id="cAvailable">0</span>
+      </button>
+      <button type="button" class="side-card" id="navMine" data-view="mine" aria-current="false">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user-check"/></svg>Allotted tasks<span class="count" id="cMine">0</span>
+      </button>
+      <div class="side-sub" id="subNav" role="group" aria-label="Allotted tasks">
+        <button type="button" class="side-sub-item" id="tabProgress" data-tab="progress">In progress <span class="count" id="nProgress">0</span></button>
+        <button type="button" class="side-sub-item" id="tabCompleted" data-tab="completed">Completed <span class="count" id="nCompleted">0</span></button>
+        <button type="button" class="side-sub-item" id="tabRejected" data-tab="rejected">Rejected <span class="count" id="nRejected">0</span></button>
+      </div>
+      <div class="side-help">
+        <strong>How it works</strong>
+        1. Accept a complaint. The citizen sees "Allotted" and "Work in progress".<br>
+        2. Fix the problem on the ground.<br>
+        3. Press "Mark as completed". A code goes to the citizen's mobile; enter it to close the complaint.
+      </div>
+    </aside>
+
+    <section aria-live="polite">
+      <div class="title-card">
+        <svg class="icon" aria-hidden="true"><use id="viewIcon" href="/assets/icons.svg#clipboard-check"/></svg>
+        <div>
+          <h2 id="viewTitle">Complaints registered</h2>
+          <p id="viewHelp">Open complaints that no worker has taken yet. Your zone comes first.</p>
+        </div>
+        <div class="total">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-text"/></svg>
+          <div><strong id="viewTotal">0</strong><span id="viewTotalLabel">Total complaints registered</span></div>
+        </div>
+      </div>
+      <div class="toolbar-row">
+        <span class="live" id="liveNote">Live</span>
+        <p id="boardError" class="error" role="alert" hidden></p>
+      </div>
+      <div id="list"></div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say, el, when, icon } = Portal;
+  let view = "available";
+  let data = { available: [], mine: [], completed: [], rejected: [] };
+  let mineTab = "progress";           // under Allotted tasks: "progress", "completed" or "rejected"
+  let lastSignature = "";
+  let seen = null;                   // complaint IDs already shown, to mark new arrivals
+  const fresh = new Set();
+  const detailsOpen = new Set();      // complaint IDs with the complainant's details open
+  const otpOpen = new Map();          // complaint ID -> { sent_to, minutes } after "Mark as completed"
+  const otpTyped = new Map();         // complaint ID -> what was typed in the code box
+  const otpErrors = new Map();
+  const rejectOpen = new Set();       // complaint IDs with the reject form open
+  const rejectText = new Map();       // complaint ID -> the reason typed so far
+
+  const VIEWS = {
+    available: {
+      title: "Complaints registered", icon: "clipboard-check", total: "Total complaints registered",
+      help: "Open complaints that no worker has taken yet. Your zone comes first.",
+      empty: "No open complaints are waiting right now. New ones appear here by themselves.",
+    },
+    mine: {
+      title: "Allotted tasks", icon: "user-check", total: "Total tasks allotted to you",
+      help: "Complaints you accepted. Mark each one completed with the citizen's code.",
+      empty: "You have not accepted a complaint yet. Accept one from Complaints registered.",
+    },
+  };
+
+  let toastTimer = null;
+  function toast(message, action) {
+    const box = $("toast");
+    box.replaceChildren(el("div", null, message));
+    if (action) {
+      const button = el("button", { type: "button", className: "btn small light" }, action.label);
+      button.addEventListener("click", () => { box.hidden = true; action.run(); });
+      box.append(button);
+    }
+    box.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { box.hidden = true; }, 6000);
+  }
+
+  function showView(next) {
+    view = next === "mine" ? "mine" : "available";
+    const v = VIEWS[view];
+    $("viewTitle").textContent = v.title;
+    $("viewHelp").textContent = v.help;
+    $("viewTotalLabel").textContent = v.total;
+    $("viewIcon").setAttribute("href", `/assets/icons.svg#${v.icon}`);
+    $("navAvailable").setAttribute("aria-current", String(view === "available"));
+    $("navMine").setAttribute("aria-current", String(view === "mine"));
+    $("topAvailable").classList.toggle("active", view === "available");
+    $("topMine").classList.toggle("active", view === "mine");
+    render();
+  }
+
+  function row(label, value) {
+    return [el("dt", null, label), el("dd", null, value || "Not given")];
+  }
+
+  // One label with its value under it, so a pair never splits across columns.
+  function field(label, value) {
+    return el("div", null, el("dt", null, label), el("dd", null, value || "Not given"));
+  }
+
+  function card(item) {
+    const mine = view === "mine";
+    const top = el("div", { className: "job-top" },
+      el("span", { className: "cid" }, item.id),
+      el("span", { className: "what" }, item.complaint_label),
+      fresh.has(item.id) ? el("span", { className: "pill new" }, "New") : null,
+      item.overdue ? el("span", { className: "pill overdue" }, "Time limit passed") : null);
+    if (mine && item.status === "closed") top.append(el("span", { className: "pill resolved side" }, "Completed"));
+    else if (mine) top.append(el("span", { className: "pill accepted side" }, "✓ Accepted · Work in progress"));
+    else top.append(el("span", { className: "pill registered side" }, "Waiting for a worker"));
+
+    const where = item.problem_address ? `${item.problem_address}${item.landmark ? ` (${item.landmark})` : ""}` : "Not given";
+    const meta = el("dl", { className: "job-meta" },
+      field("Department", item.field),
+      field("Address of the problem", where),
+      field("Zone and ward", item.zone && item.ward ? `${item.zone}, ${item.ward}` : ""),
+      field("Registered on", when(item.registered_at, "")),
+      field("Time limit", item.status === "open" ? when(item.deadline) : "Not running"),
+      field("Office in charge", item.current_office));
+
+    const actions = el("div", { className: "job-actions" });
+    if (!mine) {
+      const accept = el("button", { type: "button", className: "btn" }, icon("check-circle"), "Accept");
+      accept.addEventListener("click", () => acceptComplaint(item.id, accept));
+      actions.append(accept);
+      const refuse = el("button", { type: "button", className: "btn danger" }, "Reject complaint");
+      refuse.addEventListener("click", () => {
+        if (rejectOpen.has(item.id)) rejectOpen.delete(item.id); else rejectOpen.add(item.id);
+        render(true);
+      });
+      actions.append(refuse);
+    } else if (item.status === "open") {
+      const done = el("button", { type: "button", className: "btn" }, icon("key"), "Mark as completed");
+      done.addEventListener("click", () => requestCode(item.id, done));
+      actions.append(done);
+      const reject = el("button", { type: "button", className: "btn danger" }, "Reject complaint");
+      reject.addEventListener("click", () => {
+        if (rejectOpen.has(item.id)) rejectOpen.delete(item.id); else rejectOpen.add(item.id);
+        render(true);
+      });
+      actions.append(reject);
+    } else {
+      actions.append(el("span", { className: "muted" }, `Completed on ${when(item.completed_at, "")}.`));
+    }
+    const open = detailsOpen.has(item.id);
+    const details = el("button", { type: "button", className: "btn outline" }, icon("user"),
+      open ? "Hide complainant details" : "View complainant details");
+    details.addEventListener("click", () => {
+      if (detailsOpen.has(item.id)) detailsOpen.delete(item.id); else detailsOpen.add(item.id);
+      render(true);
+    });
+    actions.append(details);
+
+    const box = el("article", { className: "job" + (fresh.has(item.id) ? " fresh" : ""), dataset: { id: item.id } },
+      top, meta, el("p", { className: "job-text" }, item.complaint_text), actions);
+
+    if (open) {
+      const c = item.citizen || {};
+      box.append(el("div", { className: "person" },
+        el("h4", null, icon("user"), "Complainant details"),
+        el("dl", null, ...row("Name", c.name), ...row("Mobile number", c.mobile), ...row("Home address", c.address),
+          ...row("Zone", c.zone), ...row("Ward", c.ward))));
+    }
+
+    if (mine && item.status === "open" && (otpOpen.has(item.id) || item.code_sent)) {
+      const sent = otpOpen.get(item.id);
+      const input = el("input", { className: "input", type: "text", inputmode: "numeric", maxlength: "6",
+        placeholder: "6-digit code", "aria-label": `Code for ${item.id}` });
+      input.value = otpTyped.get(item.id) || "";
+      input.addEventListener("input", () => otpTyped.set(item.id, input.value));
+      const verify = el("button", { type: "button", className: "btn small" }, "Verify and complete");
+      verify.addEventListener("click", () => completeComplaint(item.id, input.value, verify));
+      const again = el("button", { type: "button", className: "btn small outline" }, "Send a new code");
+      again.addEventListener("click", () => requestCode(item.id, again));
+      box.append(el("div", { className: "otp-box" },
+        el("p", null, sent
+          ? `A code was sent to the citizen's mobile ${sent.sent_to}. Ask the citizen for it and enter it here. It lasts ${sent.minutes} minutes.`
+          : "A code was sent to the citizen's mobile. Ask the citizen for it and enter it here."),
+        el("div", { className: "job-actions" }, input, verify, again),
+        item.demo_code
+          ? el("p", { className: "demo-code" }, `Demo only: no SMS is set up, so the code is shown here: ${item.demo_code}`)
+          : null,
+        otpErrors.get(item.id) ? el("p", { className: "error" }, otpErrors.get(item.id)) : null));
+    }
+
+    if ((!mine || item.status === "open") && rejectOpen.has(item.id)) {
+      const reason = el("textarea", { className: "input", rows: "3", maxlength: "500",
+        placeholder: "Why are you rejecting it? For example: the address is not in our area, or it is not a water problem." });
+      reason.value = rejectText.get(item.id) || "";
+      reason.addEventListener("input", () => rejectText.set(item.id, reason.value));
+      const send = el("button", { type: "button", className: "btn small danger" }, "Send rejection to the officer");
+      send.addEventListener("click", () => rejectComplaint(item.id, send));
+      const cancel = el("button", { type: "button", className: "btn small outline" }, "Cancel");
+      cancel.addEventListener("click", () => { rejectOpen.delete(item.id); render(true); });
+      box.append(el("div", { className: "reject-box" },
+        el("p", null, "The complaint stays open and goes back to the list for another worker. The officer gets your reason, your details, the citizen's details and the officer's details."),
+        reason,
+        el("div", { className: "job-actions" }, send, cancel)));
+    }
+    return box;
+  }
+
+  // Placeholder under each registered complaint, like the "From the agents" box on the citizen's page.
+  function agentsBox() {
+    return el("div", { className: "agents-box agents-under" },
+      el("h3", null, icon("sparkle"), "From the agents"),
+      el("p", null, "Advice and updates from the complaint agents about this complaint will appear here."),
+      el("span", { className: "soon" }, "Coming soon"));
+  }
+
+  // Rejected complaints: the reason, when it was rejected, and what has happened since.
+  function rejectedCard(item) {
+    const where = item.problem_address ? `${item.problem_address}${item.landmark ? ` (${item.landmark})` : ""}` : "Not given";
+    return el("article", { className: "job", dataset: { id: item.id } },
+      el("div", { className: "job-top" },
+        el("span", { className: "cid" }, item.id),
+        el("span", { className: "what" }, item.complaint_label || ""),
+        el("span", { className: "pill notdone side" }, "Rejected by you")),
+      el("dl", { className: "job-meta" },
+        field("Rejected on", when(item.rejected_at)),
+        field("Office in charge", item.office),
+        field("Address of the problem", where),
+        field("Now", item.now_status_text)),
+      el("div", { className: "person" },
+        el("h4", null, icon("user"), "Your reason"),
+        el("p", { className: "job-text", style: "margin: 0;" }, item.reason || "No reason written")),
+      el("p", { className: "job-text" }, item.complaint_text || ""));
+  }
+
+  const EMPTY = {
+    progress: "You have not accepted a complaint yet. Accept one from Complaints registered.",
+    completed: "No complaint has been completed by you yet.",
+    rejected: "You have not rejected any complaint.",
+  };
+
+  function itemsFor() {
+    if (view !== "mine") return data[view] || [];
+    if (mineTab === "completed") return data.completed || [];
+    if (mineTab === "rejected") return data.rejected || [];
+    return (data.mine || []).filter((item) => item.status === "open");
+  }
+
+  function render(force) {
+    const items = itemsFor();
+    $("cAvailable").textContent = data.available.length;
+    $("cMine").textContent = data.accepted_count ?? data.mine.length;
+    $("nProgress").textContent = data.mine.filter((item) => item.status === "open").length;
+    $("nCompleted").textContent = (data.completed || []).length;
+    $("nRejected").textContent = (data.rejected || []).length;
+    for (const tab of document.querySelectorAll(".side-sub-item")) {
+      const on = view === "mine" && tab.dataset.tab === mineTab;
+      tab.classList.toggle("active", on);
+      tab.setAttribute("aria-current", String(on));
+    }
+    $("viewTotal").textContent = items.length;
+    const typing = $("list").contains(document.activeElement) && document.activeElement.tagName === "INPUT";
+    if (typing && !force) return;
+    const list = $("list");
+    if (!items.length) {
+      const empty = view === "mine" ? EMPTY[mineTab] : VIEWS[view].empty;
+      list.replaceChildren(el("div", { className: "empty-box" }, icon("inbox"), empty));
+      return;
+    }
+    if (view === "available") {
+      list.replaceChildren(...items.flatMap((item) => [card(item), agentsBox()]));
+      return;
+    }
+    const draw = view === "mine" && mineTab === "rejected" ? rejectedCard : card;
+    list.replaceChildren(...items.map(draw));
+  }
+
+  for (const tab of document.querySelectorAll(".side-sub-item")) {
+    tab.addEventListener("click", () => { mineTab = tab.dataset.tab; showView("mine"); render(true); });
+  }
+
+  async function load(force) {
+    const result = await get("/api/worker/complaints");
+    if (!result.ok) {
+      if (result.status === 401) { window.location.replace("/?tab=worker"); return; }
+      $("liveNote").classList.add("paused");
+      $("liveNote").textContent = "Cannot reach the server";
+      return;
+    }
+    $("liveNote").classList.remove("paused");
+    $("liveNote").textContent = `Live · updated ${new Date().toLocaleTimeString("en-IN")}`;
+    const next = result.data;
+    const ids = new Set(next.available.map((item) => item.id));
+    if (seen) for (const id of ids) if (!seen.has(id)) fresh.add(id);
+    for (const id of [...fresh]) if (!ids.has(id)) fresh.delete(id);
+    if (seen && [...ids].some((id) => !seen.has(id))) toast("A new complaint was registered.");
+    seen = ids;
+    const signature = JSON.stringify(next);
+    if (!force && signature === lastSignature) return;
+    lastSignature = signature;
+    data = next;
+    render(force);
+  }
+
+  async function acceptComplaint(id, button) {
+    say("boardError", "");
+    button.disabled = true;
+    try {
+      await post(`/api/worker/complaints/${encodeURIComponent(id)}/accept`, {});
+      fresh.delete(id);
+      toast(`${id} is now in your allotted tasks. The citizen sees "Allotted" and "Work in progress".`,
+        { label: "Open allotted tasks", run: () => showView("mine") });
+      await load(true);
+    } catch (err) {
+      say("boardError", err.message);
+      button.disabled = false;
+      await load(true);
+    }
+  }
+
+  async function requestCode(id, button) {
+    say("boardError", "");
+    button.disabled = true;
+    try {
+      const sent = await post(`/api/worker/complaints/${encodeURIComponent(id)}/request-completion`, {});
+      otpOpen.set(id, sent);
+      otpErrors.delete(id);
+      await load(true);
+    } catch (err) {
+      say("boardError", err.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function rejectComplaint(id, button) {
+    const reason = (rejectText.get(id) || "").trim();
+    if (reason.length < 10) {
+      say("boardError", "Write why you are rejecting it (at least 10 characters).");
+      return;
+    }
+    say("boardError", "");
+    button.disabled = true;
+    try {
+      await post(`/api/worker/complaints/${encodeURIComponent(id)}/reject`, { reason: reason });
+      rejectOpen.delete(id);
+      rejectText.delete(id);
+      otpOpen.delete(id);
+      toast(`${id} is rejected. The officer has been told, and the complaint is open for another worker.`);
+      await load(true);
+    } catch (err) {
+      say("boardError", err.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function completeComplaint(id, code, button) {
+    button.disabled = true;
+    try {
+      await post(`/api/worker/complaints/${encodeURIComponent(id)}/complete`, { code: code });
+      otpOpen.delete(id);
+      otpTyped.delete(id);
+      otpErrors.delete(id);
+      toast(`${id} is completed. The citizen now sees a green Resolved.`);
+      document.activeElement.blur();
+      await load(true);
+    } catch (err) {
+      otpErrors.set(id, err.message);
+      button.disabled = false;
+      render(true);
+    }
+  }
+
+  document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view)));
+  $("topAvailable").addEventListener("click", (event) => { event.preventDefault(); showView("available"); });
+  $("topMine").addEventListener("click", (event) => { event.preventDefault(); showView("mine"); });
+
+  (async () => {
+    const me = await Portal.requireRole("worker");
+    Portal.setupAccount(me.name, [["Name", me.name], ["Mobile", me.mobile], ["Department", me.department],
+      ["Address", me.address], ["Zone", me.zone], ["Ward", me.ward]]);
+    $("greeting").textContent = `Welcome, ${me.name}`;
+    $("whoLine").textContent = `${me.department} · ${me.zone}, ${me.ward}. Accept a complaint, fix the problem, and close it with the citizen's code.`;
+    showView(window.location.hash === "#mine" ? "mine" : "available");
+    await load(true);
+    setInterval(() => { if (!document.hidden) load(false); }, 5000);
+  })();
+</script>
+</body>
+</html>

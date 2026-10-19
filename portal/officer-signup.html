@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Officer sign-up - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <nav class="iconlinks" aria-label="Main">
+      <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg>Home</a>
+      <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>User Login</a>
+      <a href="/?tab=worker"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#worker"/></svg>Worker Login</a>
+      <a href="/?tab=officer"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#briefcase"/></svg>Officer Login</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero compact">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <h1>Clean Water, Clear Drains <br class="wide-only">for Every Street in <span class="sky">Chennai</span></h1>
+    <p class="lead">Officers see the complaints for their field, zone and level, act on them, and mark them resolved.</p>
+    <div class="chips">
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg>Clean water</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#pipe"/></svg>Clear drains</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#zap"/></svg>Quick response</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#megaphone"/></svg>Your voice matters</span>
+    </div>
+  </div>
+</section>
+
+<nav class="strip" aria-label="Sign-up">
+  <div class="container">
+    <a href="/"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#home"/></svg>Home</a>
+    <a href="/signup"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg>User Sign-up</a>
+    <a href="/worker/signup"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#worker"/></svg>Worker Sign-up</a>
+    <a href="/officer/signup" class="active" aria-current="page"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#briefcase"/></svg>Officer Sign-up</a>
+    <a href="/?tab=officer"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-in"/></svg>Officer Login</a>
+  </div>
+</nav>
+
+<main class="container">
+  <form class="form-card" id="officerSignupForm">
+    <div class="form-head">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-edit"/></svg>
+      <div>
+        <h1>Officer Sign-up</h1>
+        <p>Enter your details below. You can log in with your username and password once you sign up.</p>
+      </div>
+      <p class="mandatory"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#user"/></svg><span>Fields marked with <span class="req">*</span> are mandatory</span></p>
+    </div>
+
+    <div class="form-body">
+      <div class="col">
+        <div class="field">
+          <label for="oName">Name <span class="req">*</span></label>
+          <input class="input" id="oName" type="text" maxlength="100" autocomplete="name" placeholder="Enter your name" required>
+        </div>
+        <div class="field">
+          <label for="oEmployee">Employee ID <span class="req">*</span></label>
+          <input class="input" id="oEmployee" type="text" maxlength="30" placeholder="Enter your employee ID" required>
+        </div>
+        <div class="field">
+          <label for="oPosition">Position <span class="req">*</span></label>
+          <input class="input" id="oPosition" type="text" maxlength="100" placeholder="Enter your position / designation" required>
+        </div>
+        <div class="field">
+          <label for="oMobile">Mobile number <span class="req">*</span></label>
+          <input class="input" id="oMobile" type="tel" inputmode="numeric" maxlength="16" autocomplete="tel" placeholder="Enter your mobile number" required>
+        </div>
+        <div class="field">
+          <label for="oEmail">E-mail address <span class="req">*</span></label>
+          <input class="input" id="oEmail" type="email" maxlength="120" autocomplete="email" placeholder="Enter your email address" required>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="field">
+          <label for="oZone">Zone</label>
+          <select class="input" id="oZone"><option value="">All zones</option></select>
+        </div>
+        <div class="field">
+          <label for="oField">Field you work in <span class="req">*</span></label>
+          <select class="input" id="oField" required>
+            <option value="">Select a field ...</option>
+            <option value="water">Water supply</option>
+            <option value="sewerage">Sewerage</option>
+            <option value="billing">Billing and charges</option>
+            <option value="new_connection">New connections</option>
+            <option value="general">General grievances</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oLevel">Level <span class="req">*</span></label>
+          <select class="input" id="oLevel" required>
+            <option value="">Select a level ...</option>
+            <option value="depot">Depot</option>
+            <option value="deputy_ae">Deputy Area Engineer</option>
+            <option value="area_engineer">Area Engineer</option>
+            <option value="superintendent_engineer">Superintendent Engineer</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oUsername">Username <span class="req">*</span></label>
+          <input class="input" id="oUsername" type="text" maxlength="40" autocomplete="username" placeholder="For example: asha.depot" required>
+          <p class="hint">Lower-case letters, numbers, dots, dashes and underscores.</p>
+        </div>
+        <div class="field">
+          <label for="oPassword">Password <span class="req">*</span></label>
+          <input class="input" id="oPassword" type="password" maxlength="200" autocomplete="new-password" placeholder="At least 10 characters" required>
+        </div>
+        <div class="field">
+          <label for="oPassword2">Confirm password <span class="req">*</span></label>
+          <input class="input" id="oPassword2" type="password" maxlength="200" autocomplete="new-password" placeholder="Type the password again" required>
+        </div>
+        <p id="officerSignupError" class="error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button type="button" class="btn outline" id="resetButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#reset"/></svg>Reset</button>
+          <button type="submit" class="btn" id="officerSignupSubmit"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#send"/></svg>Submit</button>
+        </div>
+      </div>
+    </div>
+    <p class="form-foot">Already signed up? <a href="/?tab=officer">Log in as an officer</a></p>
+  </form>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say } = Portal;
+
+  async function loadZones() {
+    const result = await get("/api/locations");
+    if (!result.ok) return; // the list stays on All zones
+    for (const zone of result.data.zones) {
+      $("oZone").appendChild(new Option(`${zone.name} zone`, String(zone.number)));
+    }
+  }
+
+  $("resetButton").addEventListener("click", () => {
+    $("officerSignupForm").reset();
+    say("officerSignupError", "");
+  });
+
+  $("officerSignupForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    say("officerSignupError", "");
+    if ($("oPassword").value !== $("oPassword2").value) {
+      say("officerSignupError", "The two passwords do not match.");
+      return;
+    }
+    $("officerSignupSubmit").disabled = true;
+    try {
+      await post("/api/officer/signup", {
+        name: $("oName").value,
+        employee_id: $("oEmployee").value,
+        position: $("oPosition").value,
+        mobile: $("oMobile").value,
+        email: $("oEmail").value,
+        username: $("oUsername").value,
+        password: $("oPassword").value,
+        field: $("oField").value,
+        level: $("oLevel").value,
+        zone_number: $("oZone").value,
+      });
+      window.location.assign("/?officer_signed_up=1");
+    } catch (err) {
+      say("officerSignupError", err.message);
+      $("officerSignupSubmit").disabled = false;
+    }
+  });
+
+  loadZones();
+</script>
+</body>
+</html>

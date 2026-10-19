@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Officer Dashboard - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<!-- Officer dashboard. Officers log in on the first screen, on the Officer Login tab. Midnight (India time) ends every officer login. -->
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/officer">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Officer dashboard</span></span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="#complaints" id="topComplaints" class="active">Complaints</a>
+      <a href="#notices" id="topNotices">Notices <span class="pill overdue" id="noticeBadge" hidden>0</span></a>
+      <a href="#detail" id="detailLink" hidden>Selected complaint</a>
+    </nav>
+    <div class="top-right">
+      <div class="account" id="accountArea" hidden>
+        <button type="button" class="avatar" id="accountButton" aria-haspopup="true" aria-expanded="false" aria-label="Your account"></button>
+        <div class="account-panel" id="accountPanel" hidden>
+          <h3>Your details</h3>
+          <dl id="accountDetails"></dl>
+          <button type="button" class="btn outline block" id="logoutButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-out"/></svg>Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="dashSection" hidden>
+  <section class="hero compact">
+    <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <div class="container">
+      <p class="greeting" id="greeting"></p>
+      <h1>Officer Dashboard</h1>
+      <p class="lead" id="whoLine"></p>
+    </div>
+  </section>
+
+  <main class="container">
+    <section id="noticesView" hidden>
+      <div class="title-card" style="margin-top: 26px;">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#megaphone"/></svg>
+        <div>
+          <h2>Notices received</h2>
+          <p>Complaints not completed in time, and complaints a worker rejected, with the worker's details, the citizen's details and the officer in charge.</p>
+        </div>
+        <div class="total">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#bell"/></svg>
+          <div><strong id="nNotices">0</strong><span>Total no of notices received</span></div>
+        </div>
+      </div>
+      <div class="toolbar-row">
+        <span class="live" id="noticeLive">Live</span>
+        <button type="button" class="btn small outline" id="backToComplaints"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#chevron-left"/></svg>Back to complaints</button>
+      </div>
+      <div class="notice-layout">
+        <aside class="notice-side" aria-label="Notice counts">
+          <h3>Count of notices</h3>
+          <div class="notice-count"><strong id="sTotal">0</strong><span>Total notices</span></div>
+          <div class="notice-count"><strong id="sOverdue">0</strong><span>Not completed in time</span></div>
+          <div class="notice-count"><strong id="sRejected">0</strong><span>Rejected by workers</span></div>
+        </aside>
+        <div id="noticeList"></div>
+      </div>
+      <div style="height: 26px;"></div>
+    </section>
+
+    <div id="complaintsView">
+    <section class="section" aria-label="Complaints in numbers">
+      <div class="numbers">
+        <div class="numbers-title">
+          <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#chart"/></svg>
+          <div><strong id="numbersTitle">Your Complaints in Numbers</strong><span>Updates on its own every few seconds.</span></div>
+        </div>
+        <div class="stat"><span class="bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#inbox"/></svg></span><div><strong id="nOpen">0</strong><span>Open</span></div></div>
+        <div class="stat"><span class="bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#clock"/></svg></span><div><strong id="nOverdue">0</strong><span>Time limit passed</span></div></div>
+        <div class="stat"><span class="bubble tone-yellow"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#users"/></svg></span><div><strong id="nWaiting">0</strong><span>Waiting for citizen</span></div></div>
+        <div class="stat"><span class="bubble tone-green"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#check-circle"/></svg></span><div><strong id="nClosed">0</strong><span>Closed</span></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2 id="listTitle">Complaints assigned to you</h2>
+          <p id="listHelp">Click a complaint to see its details and act on it.</p>
+        </div>
+        <div class="toolbar">
+          <span class="live" id="liveNote">Live</span>
+          <button type="button" class="btn small outline" id="refreshBtn"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#refresh"/></svg>Refresh</button>
+          <button type="button" class="btn small outline" id="overdueBtn" hidden><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#clock"/></svg>Check passed time limits now</button>
+        </div>
+      </div>
+      <p id="dashError" class="notice info" role="status" hidden></p>
+      <div class="scroll">
+        <table class="grid">
+          <thead><tr><th>ID</th><th>Complaint</th><th>Field</th><th>Zone and ward</th><th>With</th><th>Time limit</th><th>Status</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="emptyList" class="muted" hidden>Nothing here right now. New complaints appear here on their own.</p>
+    </section>
+
+    <section class="form-card" id="detail" hidden>
+      <div class="form-head">
+        <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#file-text"/></svg>
+        <div>
+          <h2 id="dId"></h2>
+          <p><span id="dLabel"></span> &middot; <span id="dField"></span></p>
+        </div>
+        <div class="mandatory">
+          <span class="pill urgent" id="dUrgent" hidden>Urgent</span>
+          <span class="pill overdue" id="dOverdue" hidden>Time limit passed</span>
+          <button type="button" class="btn small outline" id="closeDetail">Close</button>
+        </div>
+      </div>
+      <div class="form-body">
+        <div class="col">
+          <p class="notice info" id="dStatus"></p>
+          <dl class="detail-grid">
+            <dt>Citizen</dt><dd id="dCitizen"></dd>
+            <dt>Mobile</dt><dd id="dContact"></dd>
+            <dt>Address of the problem</dt><dd id="dAddress"></dd>
+            <dt>Landmark</dt><dd id="dLandmark"></dd>
+            <dt>Zone and ward</dt><dd id="dPlace"></dd>
+            <dt>With</dt><dd id="dOffice"></dd>
+            <dt>Assigned to</dt><dd id="dAssigned"></dd>
+            <dt>Worker</dt><dd id="dWorker"></dd>
+            <dt>Time limit</dt><dd id="dDeadline"></dd>
+          </dl>
+          <h3>Complaint</h3>
+          <pre class="complaint-text" id="dText"></pre>
+          <h3>Route</h3>
+          <p class="muted" id="dPath"></p>
+        </div>
+        <div class="col">
+          <h3>Action</h3>
+          <div class="field">
+            <label for="note">Note (needed for every action) <span class="req">*</span></label>
+            <textarea class="input" id="note" rows="4" maxlength="1000" placeholder="What was done, or why this is being passed on"></textarea>
+          </div>
+          <div class="toolbar">
+            <button type="button" id="resolveBtn" class="btn"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#check-circle"/></svg>Mark resolved</button>
+            <button type="button" id="noteBtn" class="btn outline">Add note</button>
+            <button type="button" id="escalateBtn" class="btn danger">Escalate to next level</button>
+          </div>
+          <p class="hint">Marking resolved does not close the complaint. The citizen confirms it. If the citizen says it is still not fixed, it goes to the next level.</p>
+          <p id="actionError" class="error" role="alert" hidden></p>
+          <h3>History</h3>
+          <ul class="events" id="dEvents"></ul>
+        </div>
+      </div>
+    </section>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, getJson, say, el, when, icon } = Portal;
+  let me = null;
+  let openId = null;
+  let seen = null;          // complaint IDs already shown, to mark new arrivals
+  let lastSignature = "";
+
+  function statusPill(item) {
+    if (item.status === "closed") return el("span", { className: "pill resolved" }, "Resolved");
+    if (item.work_status === "allotted") return el("span", { className: "pill allotted" }, "Allotted \u00b7 Work in progress");
+    const words = { open: "Open", awaiting_confirmation: "Waiting for citizen" };
+    return el("span", { className: `pill ${item.status}` }, words[item.status] || item.status);
+  }
+
+  function renderList(items) {
+    $("nOpen").textContent = items.filter((item) => item.status === "open").length;
+    $("nOverdue").textContent = items.filter((item) => item.overdue).length;
+    $("nWaiting").textContent = items.filter((item) => item.status === "awaiting_confirmation").length;
+    $("nClosed").textContent = items.filter((item) => item.status === "closed").length;
+    $("emptyList").hidden = items.length > 0;
+
+    const rows = $("rows");
+    rows.replaceChildren();
+    for (const item of items) {
+      const isNew = seen !== null && !seen.has(item.id);
+      const deadline = el("td", null, item.status === "open" ? when(item.deadline, "None") : "Not running");
+      if (item.overdue) deadline.append(" ", el("span", { className: "pill overdue" }, "Passed"));
+      const idCell = el("td", null, el("strong", null, item.id));
+      if (isNew) idCell.append(" ", el("span", { className: "pill new" }, "New"));
+      const row = el("tr", { className: "clickable" + (isNew ? " fresh" : "") + (item.id === openId ? " selected" : "") },
+        idCell,
+        el("td", null, item.complaint_label,
+          item.problem_address ? el("div", { className: "hint" }, item.problem_address) : null),
+        el("td", null, item.field),
+        el("td", null, item.zone && item.ward ? `${item.zone}, ${item.ward}` : "Not recorded"),
+        el("td", null, item.current_office),
+        deadline,
+        el("td", null, statusPill(item)));
+      row.tabIndex = 0;
+      row.addEventListener("click", () => openComplaint(item.id, true));
+      row.addEventListener("keydown", (event) => { if (event.key === "Enter") openComplaint(item.id, true); });
+      rows.appendChild(row);
+    }
+    seen = new Set(items.map((item) => item.id));
+  }
+
+  async function loadList(force) {
+    try {
+      const data = await getJson("/api/officer/complaints");
+      $("liveNote").classList.remove("paused");
+      $("liveNote").textContent = `Live · updated ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+      const signature = JSON.stringify(data.complaints);
+      if (!force && signature === lastSignature) return false;
+      lastSignature = signature;
+      renderList(data.complaints);
+      return true;
+    } catch (err) {
+      if (err.status === 401) { showLogin(); return false; }
+      $("liveNote").classList.add("paused");
+      $("liveNote").textContent = "Cannot reach the server";
+      return false;
+    }
+  }
+
+  async function openComplaint(id, scroll) {
+    openId = id;
+    say("actionError", "");
+    let d;
+    try {
+      d = await getJson(`/api/officer/complaints/${encodeURIComponent(id)}`);
+    } catch (err) {
+      say("dashError", err.message);
+      return;
+    }
+    $("detail").hidden = false;
+    $("detailLink").hidden = false;
+    $("dId").textContent = d.id;
+    $("dLabel").textContent = d.complaint_label;
+    $("dField").textContent = d.field;
+    $("dUrgent").hidden = !d.urgent;
+    $("dOverdue").hidden = !d.overdue;
+    $("dStatus").textContent = d.status_text;
+    $("dCitizen").textContent = d.citizen_name;
+    $("dContact").textContent = d.citizen_contact;
+    $("dAddress").textContent = d.problem_address || "Not given";
+    $("dLandmark").textContent = d.landmark || "None";
+    $("dPlace").textContent = d.zone && d.ward ? `${d.zone}, ${d.ward}` : "Not recorded";
+    $("dOffice").textContent = d.current_office;
+    $("dAssigned").textContent = d.assigned_to;
+    $("dWorker").textContent = d.worker ? `${d.worker.name} (${d.worker.department}), ${d.worker.mobile}` : "No worker has accepted it yet";
+    $("dDeadline").textContent = d.status === "awaiting_confirmation" ? "Not running (waiting for the citizen)" : when(d.deadline);
+    $("dText").textContent = d.complaint_text;
+    $("dPath").textContent = d.path.join("  >  ");
+    $("dEvents").replaceChildren(...d.events.map((event) => el("li", null,
+      el("span", { className: "at" }, `${when(event.at)} (${event.actor}) - `), event.message)));
+    $("noteBtn").disabled = !d.can_note;
+    $("resolveBtn").disabled = !d.can_resolve;
+    $("escalateBtn").disabled = !d.can_escalate;
+    document.querySelectorAll("#rows tr").forEach((row) => {
+      row.classList.toggle("selected", row.firstChild && row.firstChild.textContent.startsWith(id));
+    });
+    if (scroll) $("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function closeDetail() {
+    openId = null;
+    $("detail").hidden = true;
+    $("detailLink").hidden = true;
+    document.querySelectorAll("#rows tr.selected").forEach((row) => row.classList.remove("selected"));
+  }
+
+  async function runAction(kind) {
+    say("actionError", "");
+    const note = $("note").value.trim();
+    if (!note) {
+      say("actionError", "Write a note first.");
+      return;
+    }
+    try {
+      await post(`/api/officer/complaints/${encodeURIComponent(openId)}/${kind}`, { note: note });
+      $("note").value = "";
+      if (kind === "escalate") {
+        // The complaint now belongs to the next officer, so it leaves this list.
+        closeDetail();
+      } else {
+        await openComplaint(openId, false);
+      }
+      await loadList(true);
+    } catch (err) {
+      say("actionError", err.message);
+    }
+  }
+
+  // Officers log in on the first screen. A login that has ended (at midnight) comes back there.
+  function showLogin() {
+    window.location.replace("/?tab=officer&reason=signin");
+  }
+
+  (async () => {
+    try {
+      me = await getJson("/api/officer/me");
+    } catch (err) {
+      showLogin();
+      return;
+    }
+    $("dashSection").hidden = false;
+    Portal.setupAccount(me.name, [["Name", me.name], ["Username", me.username], ["Level", me.level_label], ["Field", me.field_label]]);
+    $("greeting").textContent = `Welcome, ${me.name}`;
+    $("whoLine").textContent = `${me.level_label} · ${me.field_label}. Your login ends at midnight (India time).`;
+    $("overdueBtn").hidden = !me.is_district_head;
+    if (me.is_district_head) {
+      $("listTitle").textContent = "All complaints (District Head Office)";
+      $("numbersTitle").textContent = "All Complaints in Numbers";
+      $("listHelp").textContent = "You see every complaint. Escalated and unassigned complaints need your attention first.";
+    }
+    await loadList(true);
+    const first = await loadNotices();
+    showView("notices");
+    // New complaints and notices appear on their own: both are checked every 5 seconds.
+    setInterval(async () => {
+      if (document.hidden) return;
+      const changed = await loadList(false);
+      if (changed && openId) await openComplaint(openId, false);
+      await loadNotices();
+    }, 5000);
+  })();
+
+  // Notices: complaints that passed their time limit
+  let noticeIds = null;
+  let noticeSignature = "";
+
+  function showView(name) {
+    const notices = name === "notices";
+    $("noticesView").hidden = !notices;
+    $("complaintsView").hidden = notices;
+    $("topNotices").classList.toggle("active", notices);
+    $("topComplaints").classList.toggle("active", !notices);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  $("topNotices").addEventListener("click", (event) => { event.preventDefault(); showView("notices"); });
+  $("topComplaints").addEventListener("click", (event) => { event.preventDefault(); showView("complaints"); });
+  $("backToComplaints").addEventListener("click", () => showView("complaints"));
+
+  function pair(label, value) {
+    return [el("dt", null, label), el("dd", null, value || "Not given")];
+  }
+
+  // One label with its value under it, so a pair never splits across columns.
+  function field(label, value) {
+    return el("div", null, el("dt", null, label), el("dd", null, value || "Not given"));
+  }
+
+  // A worker gave the complaint back: the reason, the worker, the citizen and the officer it was with.
+  function rejectionCard(n, isNew) {
+    const citizen = n.citizen || {};
+    const worker = n.worker || {};
+    const officer = n.officer || {};
+    const where = n.problem_address ? `${n.problem_address}${n.landmark ? ` (${n.landmark})` : ""}` : "Not given";
+    return el("article", { className: "job notice-card" + (isNew ? " fresh" : "") },
+      el("div", { className: "job-top" },
+        el("span", { className: "cid" }, n.complaint_id),
+        el("span", { className: "what" }, n.complaint_label),
+        el("span", { className: "pill overdue" }, "Rejected by worker"),
+        isNew ? el("span", { className: "pill new" }, "New") : null,
+        el("span", { className: "pill allotted side" }, "Open again")),
+      el("div", { className: "person" },
+        el("h4", null, icon("worker"), "Reason given by the worker"),
+        el("p", { className: "job-text", style: "margin: 0;" }, n.reason || "No reason written")),
+      el("dl", { className: "job-meta" },
+        field("Department", n.department),
+        field("Office in charge", n.office),
+        field("Rejected on", when(worker.rejected_at)),
+        field("Accepted on", when(worker.accepted_at)),
+        field("Registered on", when(n.registered_at)),
+        field("Address of the problem", where),
+        field("Zone and ward", n.zone && n.ward ? `${n.zone}, ${n.ward}` : "")),
+      el("p", { className: "job-text" }, n.complaint_text),
+      el("div", { className: "person" },
+        el("h4", null, icon("worker"), "Worker who rejected it"),
+        el("dl", null, ...pair("Name", worker.name), ...pair("Position", worker.position || worker.department),
+          ...pair("Department", worker.department), ...pair("Mobile number", worker.mobile),
+          ...pair("Home address", worker.address), ...pair("Zone", worker.zone), ...pair("Ward", worker.ward))),
+      el("div", { className: "person" },
+        el("h4", null, icon("user"), "Complainant details"),
+        el("dl", null, ...pair("Name", citizen.name), ...pair("Mobile number", citizen.mobile),
+          ...pair("Home address", citizen.address), ...pair("Zone", citizen.zone), ...pair("Ward", citizen.ward))),
+      el("div", { className: "person" },
+        el("h4", null, icon("user"), "Officer it was with"),
+        el("dl", null, ...pair("Name", officer.name), ...pair("Position", officer.position),
+          ...pair("Office", officer.office), ...pair("Employee ID", officer.employee_id),
+          ...pair("Mobile number", officer.mobile), ...pair("Email", officer.email), ...pair("Level", officer.level))));
+  }
+
+  function noticeCard(n, isNew) {
+    if (n.kind === "rejected") return rejectionCard(n, isNew);
+    const citizen = n.citizen || {};
+    const worker = n.worker;
+    const resolved = n.now_status === "closed" || n.now_status === "awaiting_confirmation";
+    const where = n.problem_address ? `${n.problem_address}${n.landmark ? ` (${n.landmark})` : ""}` : "Not given";
+    return el("article", { className: "job notice-card" + (isNew ? " fresh" : "") },
+      el("div", { className: "job-top" },
+        el("span", { className: "cid" }, n.complaint_id),
+        el("span", { className: "what" }, n.complaint_label),
+        el("span", { className: "pill overdue" }, "Time limit crossed"),
+        isNew ? el("span", { className: "pill new" }, "New") : null,
+        resolved ? el("span", { className: "pill resolved side" }, "Resolved") : el("span", { className: "pill allotted side" }, "Still open")),
+      el("dl", { className: "job-meta" },
+        field("Department", n.department),
+        field("Office in charge", n.office),
+        field("Moved to", n.moved_to || "Already at the last level"),
+        field("Time limit was", when(n.deadline)),
+        field("Noticed on", when(n.created_at)),
+        field("Registered on", when(n.registered_at)),
+        field("Address of the problem", where),
+        field("Zone and ward", n.zone && n.ward ? `${n.zone}, ${n.ward}` : "")),
+      el("p", { className: "job-text" }, n.complaint_text),
+      el("div", { className: "person" },
+        el("h4", null, icon("user"), "Complainant details"),
+        el("dl", null, ...pair("Name", citizen.name), ...pair("Mobile number", citizen.mobile),
+          ...pair("Home address", citizen.address), ...pair("Zone", citizen.zone), ...pair("Ward", citizen.ward))),
+      el("div", { className: "person" },
+        el("h4", null, icon("worker"), "Worker who accepted it"),
+        worker
+          ? el("dl", null, ...pair("Name", worker.name), ...pair("Mobile number", worker.mobile),
+              ...pair("Department", worker.department), ...pair("Accepted on", when(worker.accepted_at)))
+          : el("p", { className: "muted", style: "margin: 0;" }, "No worker had accepted it when the time limit passed.")));
+  }
+
+  let toastTimer = null;
+  function toast(message) {
+    $("toast").textContent = message;
+    $("toast").hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $("toast").hidden = true; }, 7000);
+  }
+
+  // Returns how many notices there are. A new notice opens the Notices screen by itself.
+  async function loadNotices() {
+    let notices;
+    try {
+      notices = (await getJson("/api/officer/notices")).notices || [];
+    } catch (err) {
+      if (err.status === 401) showLogin();
+      $("noticeLive").classList.add("paused");
+      $("noticeLive").textContent = "Cannot reach the server";
+      return noticeIds ? noticeIds.size : 0;
+    }
+    $("noticeLive").classList.remove("paused");
+    $("noticeLive").textContent = `Live \u00b7 updated ${new Date().toLocaleTimeString("en-IN")}`;
+    const ids = new Set(notices.map((n) => n.notice_id));
+    const added = noticeIds ? notices.filter((n) => !noticeIds.has(n.notice_id)) : [];
+    const firstLoad = noticeIds === null;
+    noticeIds = ids;
+    $("nNotices").textContent = notices.length;
+    const rejectedCount = notices.filter((n) => n.kind === "rejected").length;
+    $("sTotal").textContent = notices.length;
+    $("sRejected").textContent = rejectedCount;
+    $("sOverdue").textContent = notices.length - rejectedCount;
+    $("noticeBadge").textContent = notices.length;
+    $("noticeBadge").hidden = notices.length === 0;
+    const signature = JSON.stringify(notices);
+    if (signature !== noticeSignature) {
+      noticeSignature = signature;
+      const addedIds = new Set(added.map((n) => n.notice_id));
+      $("noticeList").replaceChildren(...(notices.length
+        ? notices.map((n) => noticeCard(n, addedIds.has(n.notice_id)))
+        : [el("div", { className: "empty-box" }, icon("bell"), "No notices. When a complaint passes its time limit, it appears here by itself.")]));
+    }
+    if (!firstLoad && added.length) {
+      showView("notices");
+      toast(`New notice: ${added.map((n) => n.complaint_id).join(", ")} passed the time limit.`);
+    }
+    return notices.length;
+  }
+
+  $("refreshBtn").addEventListener("click", async () => {
+    say("dashError", "");
+    await loadList(true);
+    if (openId) await openComplaint(openId, false);
+  });
+
+  $("overdueBtn").addEventListener("click", async () => {
+    say("dashError", "");
+    try {
+      const data = await post("/api/officer/check-overdue", {});
+      say("dashError", `Checked. ${data.escalated.length} complaint(s) moved on past their time limit.`);
+      await loadList(true);
+      if (openId) await openComplaint(openId, false);
+    } catch (err) {
+      say("dashError", err.message);
+    }
+  });
+
+  $("closeDetail").addEventListener("click", closeDetail);
+  $("noteBtn").addEventListener("click", () => runAction("note"));
+  $("resolveBtn").addEventListener("click", () => runAction("resolve"));
+  $("escalateBtn").addEventListener("click", () => runAction("escalate"));
+</script>
+</body>
+</html>

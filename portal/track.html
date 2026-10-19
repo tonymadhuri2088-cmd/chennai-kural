@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Track Complaint - Chennai Complaint Portal</title>
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body>
+<!-- Track Complaint: find a complaint by its ID (or pick one of your own), see where it is, confirm the fix, and read its history. -->
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="/home">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#drop"/></svg></span>
+      <span><span class="brand-name">Chennai Complaint Portal</span><span class="brand-tag">Water and sewer complaints for Chennai</span></span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/home">Home</a>
+      <a href="/register">Register Complaint</a>
+      <a href="/track" class="active" aria-current="page">Track Complaint</a>
+      <a href="/home#services">Services</a>
+      <a href="/home#how">How It Works</a>
+    </nav>
+    <div class="top-right">
+      <div class="account" id="accountArea" hidden>
+        <button type="button" class="avatar" id="accountButton" aria-haspopup="true" aria-expanded="false" aria-label="Your account"></button>
+        <div class="account-panel" id="accountPanel" hidden>
+          <h3>Your details</h3>
+          <dl id="accountDetails"></dl>
+          <button type="button" class="btn outline block" id="logoutButton"><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#log-out"/></svg>Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero compact">
+  <svg class="hero-skyline" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+  <div class="container">
+    <h1>Track Your <span class="sky">Complaint</span></h1>
+    <p class="lead">Enter your complaint ID to see where it is, who is working on it, and its time limit.</p>
+    <form class="hero-search" id="trackForm" role="search">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>
+      <input id="trackId" type="text" maxlength="30" placeholder="Enter your complaint ID, for example CMP-20261018-1234" aria-label="Complaint ID" required>
+      <button type="submit" class="btn" id="trackSubmit">Track</button>
+    </form>
+    <p id="trackError" class="hero-error" role="alert" hidden></p>
+  </div>
+</section>
+
+<main class="container" id="trackPage">
+  <section class="form-card">
+    <div class="form-head">
+      <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>
+      <div>
+        <h1>Track Complaint</h1>
+        <p>Search above, or choose one of your complaints below.</p>
+      </div>
+      <span class="live mandatory" id="liveNote">Live</span>
+    </div>
+
+    <div class="track-top" id="picksTop">
+      <div id="picksBox" hidden>
+        <p class="picks-label">Your complaints:</p>
+        <div class="picks" id="picks"></div>
+      </div>
+    </div>
+
+    <p class="empty-track" id="emptyTrack" hidden>You have not registered a complaint yet. <a href="/register">Register a complaint</a></p>
+
+    <div class="track-result" id="result" hidden>
+      <div class="status-banner">
+        <strong id="rId"></strong>
+        <span id="rStatus"></span>
+        <span id="rPill" class="side" style="margin-left: auto;"></span>
+      </div>
+      <div class="stepper" id="stepper" aria-label="Progress"></div>
+      <div class="form-body" style="padding-left: 0; padding-right: 0;">
+        <div class="col">
+          <h2>Details</h2>
+          <dl class="result-grid" id="rDetails"></dl>
+          <h2>Your complaint</h2>
+          <pre class="complaint-text" id="rText"></pre>
+        </div>
+        <div class="col">
+          <div id="workerCodeArea"></div>
+          <div id="confirmArea"></div>
+          <p id="confirmError" class="error" role="alert" hidden></p>
+          <div id="routerBox" hidden>
+            <h2>Time limits from the router</h2>
+            <div id="routerProgress"></div>
+            <details class="router-details" id="routerMessageBox">
+              <summary>Message from the complaint router</summary>
+              <div id="routerMessageBody"></div>
+            </details>
+          </div>
+          <h2>History</h2>
+          <ul class="timeline" id="rEvents"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made by Abhinav Reddy and Tony Madhuri. Not affiliated with CMWSSB.</span>
+    <svg class="foot-sky" aria-hidden="true"><use href="/assets/icons.svg#skyline"/></svg>
+    <span class="right">Unofficial demo</span>
+  </div>
+</footer>
+
+<script src="/assets/portal.js"></script>
+<script>
+  const { $, post, get, say, el, when, icon } = Portal;
+  let profile = null;
+  let currentId = "";
+  let lastSignature = "";
+  let seq = 0; // goes up whenever the shown complaint changes, so an older live refresh does not overwrite it
+  const codes = {}; // complaint ID -> code shown after "Yes, it is fixed" (demo: no SMS)
+
+  const statusPill = (item) => Portal.citizenPill(item);
+
+  // Registered -> Allotted -> Work in progress -> Resolved
+  function renderStepper(view) {
+    let position = 1;
+    if (view.status === "closed") position = 4;
+    else if (view.status === "awaiting_confirmation") position = 3;
+    else if (view.work_status === "allotted") position = 2;
+    const worker = view.worker ? `${view.worker.name} (${view.worker.department})` : "";
+    const steps = [
+      ["file-edit", "Registered", when(view.created_at, "")],
+      ["worker", "Allotted", worker || (position > 1 ? "Done" : "Waiting for a worker")],
+      ["tool", "Work in progress", position === 2 ? "The worker is on it" : (position > 2 ? "Done" : "Not yet")],
+      ["check-circle", "Resolved", view.status === "closed" ? "Problem fixed" : (position === 3 ? "Confirm the fix below" : "Not yet")],
+    ];
+    $("stepper").replaceChildren(...steps.map(([name, title, sub], index) => {
+      const state = index < position ? "done" : (index === position ? "current" : "");
+      return el("div", { className: `st ${state}` },
+        el("div", { className: "dot" }, index < position ? icon("check-circle") : icon(name)),
+        el("strong", null, title),
+        el("span", null, sub));
+    }));
+  }
+
+  function renderConfirm(view) {
+    const area = $("confirmArea");
+    area.replaceChildren();
+    if (!view.can_confirm) return;
+    const box = el("div", { className: "confirm-box" });
+    if (view.awaiting_code) {
+      const shown = codes[view.id];
+      box.append(el("p", null, shown
+        ? `Enter this code to close the complaint: ${shown.code}. It is shown here instead of an SMS and lasts ${shown.minutes} minutes.`
+        : "Enter the code sent to your mobile by SMS to close the complaint, or ask for a new one."));
+      const input = el("input", { className: "input", type: "text", inputmode: "numeric", maxlength: "6", placeholder: "6-digit code", "aria-label": "Confirmation code" });
+      const close = el("button", { type: "button", className: "btn small" }, "Close the complaint");
+      close.addEventListener("click", () => closeWithCode(view.id, input.value));
+      const again = el("button", { type: "button", className: "btn small outline" }, "Show a new code");
+      again.addEventListener("click", () => confirmFix(view.id, true, ""));
+      box.append(el("div", { className: "actions" }, input, close, shown ? null : again));
+    } else {
+      box.append(el("p", null, "An officer has marked this complaint resolved. Is the problem really fixed?"));
+      const comment = el("input", { className: "input", type: "text", maxlength: "1000", placeholder: "Comment (optional)", "aria-label": "Comment" });
+      const yes = el("button", { type: "button", className: "btn small" }, "Yes, it is fixed");
+      const no = el("button", { type: "button", className: "btn small danger" }, "No, still not fixed");
+      yes.addEventListener("click", () => confirmFix(view.id, true, comment.value));
+      no.addEventListener("click", () => confirmFix(view.id, false, comment.value));
+      box.append(el("div", { className: "actions" }, comment, yes, no));
+    }
+    area.append(box);
+  }
+
+  // The router's timeline for this complaint (where it stands in the charter's time limits) and its message.
+  function renderRouter(view) {
+    const progress = Portal.routerProgress(view.router_progress);
+    $("routerBox").hidden = !progress;
+    if (!progress) return;
+    $("routerProgress").replaceChildren(progress);
+    $("routerMessageBox").hidden = !view.router_message;
+    if (view.router_message) $("routerMessageBody").replaceChildren(...Portal.routerMessage(view.router_message).filter(Boolean));
+  }
+
+  function render(view) {
+    currentId = view.id;
+    $("trackId").value = view.id;
+    $("result").hidden = false;
+    $("rId").textContent = view.id;
+    $("rPill").replaceChildren(statusPill(view));
+    $("rStatus").textContent = view.status_text;
+    renderStepper(view);
+    const rows = [
+      ["Type", view.complaint_label],
+      ["Field", view.field],
+      ["Address of the problem", view.problem_address || "Not given"],
+      ["Landmark", view.landmark || "None"],
+      ["Zone and ward", view.zone && view.ward ? `${view.zone}, ${view.ward}` : "Not recorded"],
+      ["Worker", view.worker ? `${view.worker.name} (${view.worker.department}), ${view.worker.mobile}` : "Not allotted yet"],
+      ["Office in charge", view.current_office],
+      ["Officer", view.assigned_to],
+      ["Time limit", view.status === "open" ? when(view.deadline) : "Not running"],
+      ["Registered on", when(view.created_at, "")],
+    ];
+    $("rDetails").replaceChildren(...rows.flatMap(([label, value]) => [el("dt", null, label), el("dd", null, value)]));
+    $("rText").textContent = view.complaint_text || "";
+    renderConfirm(view);
+    renderRouter(view);
+    $("workerCodeArea").replaceChildren(view.completion_code
+      ? el("div", { className: "code-for-worker" },
+          "Code for the worker:", el("strong", null, view.completion_code),
+          el("div", null, `The worker has finished and asked for this code. Give it to the worker only if the problem is fixed. It lasts ${view.completion_code_minutes} minutes.`))
+      : "");
+    $("rEvents").replaceChildren(...[...view.events].reverse().map((event) =>
+      el("li", null, el("span", { className: "at" }, when(event.at)), event.message)));
+    document.querySelectorAll("#picks .pick").forEach((pick) => {
+      pick.setAttribute("aria-pressed", String(pick.dataset.id === view.id));
+    });
+  }
+
+  async function track(id, quiet) {
+    const wanted = String(id || "").trim();
+    if (!wanted) return;
+    if (!quiet) say("trackError", "");
+    const mySeq = seq;
+    try {
+      const view = await post("/api/track", { id: wanted, contact: profile.mobile });
+      if (quiet && mySeq !== seq) return;
+      if (!quiet) seq++;
+      const signature = JSON.stringify([view, codes]);
+      const typing = $("confirmArea").contains(document.activeElement);
+      if (quiet && (signature === lastSignature || typing)) return;
+      lastSignature = signature;
+      render(view);
+      if (quiet) loadPicks(); // the status on the buttons may have changed too
+      if (!quiet) history.replaceState(null, "", `/track?id=${encodeURIComponent(view.id)}`);
+      $("liveNote").classList.remove("paused");
+      $("liveNote").textContent = "Live";
+    } catch (err) {
+      if (err.status === 401) { window.location.replace("/"); return; }
+      if (quiet) {
+        $("liveNote").classList.add("paused");
+        $("liveNote").textContent = "Cannot reach the server";
+        return;
+      }
+      $("result").hidden = true;
+      currentId = "";
+      say("trackError", err.message);
+    }
+  }
+
+  async function confirmFix(id, fixed, comment) {
+    say("confirmError", "");
+    try {
+      const view = await post("/api/confirm", { id: id, contact: profile.mobile, fixed: fixed, comment: comment });
+      if (fixed && view.demo_code) codes[id] = { code: view.demo_code, minutes: view.demo_code_minutes };
+      seq++;
+      lastSignature = "";
+      render(view);
+      loadPicks();
+    } catch (err) {
+      say("confirmError", err.message);
+    }
+  }
+
+  async function closeWithCode(id, code) {
+    say("confirmError", "");
+    try {
+      const view = await post("/api/confirm-code", { id: id, contact: profile.mobile, code: code });
+      delete codes[id];
+      seq++;
+      lastSignature = "";
+      render(view);
+      loadPicks();
+    } catch (err) {
+      say("confirmError", err.message);
+    }
+  }
+
+  async function loadPicks() {
+    const result = await get("/api/citizen/complaints");
+    const items = result.ok ? (result.data.complaints || []) : [];
+    $("picksBox").hidden = items.length === 0;
+    $("picks").replaceChildren(...items.map((item) => {
+      const pick = el("button", { type: "button", className: "pick", dataset: { id: item.id }, "aria-pressed": String(item.id === currentId) },
+        item.id, statusPill(item));
+      pick.addEventListener("click", () => track(item.id, false));
+      return pick;
+    }));
+    return items;
+  }
+
+  $("trackForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    track($("trackId").value, false);
+  });
+
+  (async () => {
+    profile = await Portal.requireCitizen();
+    Portal.setupAccount(profile.name, Portal.citizenAccountRows(profile));
+    const items = await loadPicks();
+    const asked = new URLSearchParams(window.location.search).get("id");
+    if (asked) {
+      await track(asked, false);
+    } else if (items.length) {
+      await track(items[0].id, false);
+    } else {
+      $("emptyTrack").hidden = false;
+    }
+    // The tracked complaint is checked every 5 seconds, so an officer's action shows up by itself.
+    setInterval(() => { if (currentId && !document.hidden) track(currentId, true); }, 5000);
+  })();
+</script>
+</body>
+</html>
